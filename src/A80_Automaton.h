@@ -142,7 +142,7 @@ class Automaton {
   static int brightnessMap(int value){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return (value * 10) % 255;
+    return (value * 20) % 255;
   }
 
   static int saturationMap(int value){
@@ -169,12 +169,43 @@ class Automaton {
     }
   }
 
-  void init_growth() {
-    int cx = 13, cy = 13;
-    for (int x = cx - 3; x < cx + 3; x++){
-        for (int y = cy - 3 ; y < cy + 3; y++){
+  void init_line() {
+    int maxInit = 16;
+    int minInit = 8;
+    int cx, cy;
+    cx = int(random(maxInit - minInit + 2) + minInit - 1);
+    cy = int(random(maxInit - minInit + 2) + minInit - 1);
+    for (int y = cy - 3 ; y < cy + 3; y++){
+      cells[cx][y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);   
+    }
+  }
+
+  void init_square(){
+    int maxInit = 16;
+    int minInit = 8;
+    int cx, cy;
+    cx = int(random(maxInit - minInit + 2) + minInit - 1);
+    cy = int(random(maxInit - minInit + 2) + minInit - 1);
+    for (int y = cy - 3 ; y < cy + 3; y++){
+      for (int x = cx - 3; x < cx + 3; x++){
+        cells[x][y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);   
+      }
+    }
+  }
+
+  void init_multiple(int num){
+    int maxInit = 18;
+    int minInit = 6;
+    int cx, cy;
+    for(int k = 0; k < num; k++){
+      cx = int(random(maxInit - minInit + 2) + minInit - 1);
+      cy = int(random(maxInit - minInit + 2) + minInit - 1);
+      for (int y = cy; y < cy + 1; y++){
+        for (int x = cx; x < cx + 1; x++){
           cells[x][y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);   
         }
       }
+    }
+
   }
 };
