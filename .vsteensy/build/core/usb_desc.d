@@ -1,6 +1,3 @@
 C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/core/usb_desc.o: \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/usb_desc.c \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/usb_desc.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/usb_names.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/imxrt.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/avr_functions.h
+ core/usb_desc.c core/usb_desc.h core/usb_names.h core/imxrt.h \
+ core/avr_functions.h

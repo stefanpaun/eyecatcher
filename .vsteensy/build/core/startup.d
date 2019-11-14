@@ -1,10 +1,3 @@
 C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/core/startup.o: \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/startup.c \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/imxrt.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/wiring.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/binary.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/core_id.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/core_pins.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/pins_arduino.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/usb_dev.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/debug/printf.h
+ core/startup.c core/imxrt.h core/wiring.h core/binary.h core/core_id.h \
+ core/core_pins.h core/pins_arduino.h core/usb_dev.h core/debug/printf.h

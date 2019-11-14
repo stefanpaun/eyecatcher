@@ -1,4 +1,3 @@
-  
   static Cellmask mask_A[SIZE_SCREEN][SIZE_SCREEN] = 
   {
     { Cellmask(0, 0, 251), Cellmask(106, 2, 216), Cellmask(85, 5, 153), Cellmask(0, 0, 239), Cellmask(0, 0, 247), Cellmask(0, 0, 245), Cellmask(106, 2, 223), Cellmask(109, 10, 176), Cellmask(114, 20, 163), Cellmask(115, 26, 136), Cellmask(139, 48, 73), Cellmask(138, 185, 77), Cellmask(134, 221, 100), Cellmask(130, 63, 133), Cellmask(131, 172, 210), Cellmask(130, 244, 222), Cellmask(130, 159, 216), Cellmask(135, 51, 223), Cellmask(138, 8, 246), Cellmask(0, 0, 251), Cellmask(0, 0, 252), Cellmask(0, 0, 252), Cellmask(0, 0, 252), Cellmask(0, 0, 252), Cellmask(0, 0, 252), Cellmask(0, 0, 252)}, 

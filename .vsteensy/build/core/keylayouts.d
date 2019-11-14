@@ -1,4 +1,2 @@
 C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/core/keylayouts.o: \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/keylayouts.c \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/avr/pgmspace.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/keylayouts.h
+ core/keylayouts.c core/avr/pgmspace.h core/keylayouts.h

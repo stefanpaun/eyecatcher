@@ -5,11 +5,9 @@ class Automaton {
   
   private:
     int _target;
-    byte _reward, _penalty;
-    byte _floorInit, _minInit, _maxInit;
+    int _reward, _penalty;
+    int _floorInit, _minInit, _maxInit;
     boolean _isBg;
-    unsigned long long nextTime = 0;
-
     
   
   public: 
@@ -17,7 +15,7 @@ class Automaton {
     int nextCells[SIZE_SCREEN][SIZE_SCREEN];
     Cellmask (*_cellmask)[SIZE_SCREEN];
     const boolean (*_background)[SIZE_SCREEN];
-    Automaton(int target, byte reward, byte penalty, byte floorInit, byte minInit, byte maxInit, boolean isBg, Cellmask current_mask[SIZE_SCREEN][SIZE_SCREEN], const boolean current_bg[SIZE_SCREEN][SIZE_SCREEN]) {
+    Automaton(int target, int reward, int penalty, int floorInit, int minInit, int maxInit, bool isBg, Cellmask current_mask[SIZE_SCREEN][SIZE_SCREEN], const boolean current_bg[SIZE_SCREEN][SIZE_SCREEN]) {
       _target = target;
       _penalty = penalty;
       _reward = reward;
@@ -133,22 +131,22 @@ class Automaton {
     return ((x % m + m) % m);
   }
 
-  static int colorMap(int value){
+  int colorMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return (value) % 360;
+    return cells[x][y] % 360;
   }
 
-  static int brightnessMap(int value){
+  int brightnessMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return (value * 20) % 255;
+    return (cells[x][y] * 20) % 255;
   }
 
-  static int saturationMap(int value){
+  int saturationMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return max((value + 150) % 255, 100);
+    return max((cells[x][y] + 150) % 255, 100);
   }
   boolean allZero() {
     for (int x = 0; x < SIZE_SCREEN; x++) {
@@ -208,4 +206,5 @@ class Automaton {
     }
 
   }
+
 };

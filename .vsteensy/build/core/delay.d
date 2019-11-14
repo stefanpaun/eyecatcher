@@ -1,7 +1,3 @@
 C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/core/delay.o: \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/delay.c \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/core_pins.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/imxrt.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/pins_arduino.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/arm_math.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/core_cmInstr.h
+ core/delay.c core/core_pins.h core/imxrt.h core/pins_arduino.h \
+ core/arm_math.h core/core_cmInstr.h

@@ -1,5 +1,3 @@
 C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/core/IntervalTimer.o: \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/IntervalTimer.cpp \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/IntervalTimer.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/imxrt.h \
- C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4/debug/printf.h
+ core/IntervalTimer.cpp core/IntervalTimer.h core/imxrt.h \
+ core/debug/printf.h

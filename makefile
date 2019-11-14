@@ -7,7 +7,7 @@
 # Optimize           Faster
 # Keyboard Layout    US English
 #
-# 02/11/2019 11:55
+# 13/11/2019 15:57
 #******************************************************************************
 SHELL            := cmd.exe
 export SHELL
@@ -18,11 +18,12 @@ BOARD_ID         := TEENSY40
 MCU              := imxrt1062
 
 LIBS_SHARED_BASE := C:\Users\stefa\Documents\Arduino\libraries
+LIBS_SHARED      := Colore 
 
 LIBS_LOCAL_BASE  := lib
 LIBS_LOCAL       := Adafruit_NeoPixel Time TimeAlarms TimerOne 
 
-CORE_BASE        := C:\PROGRA~2\Arduino\hardware\teensy\avr\cores\teensy4
+CORE_BASE        := core
 GCC_BASE         := C:\PROGRA~2\Arduino\hardware\tools\arm\bin
 UPL_PJRC_B       := C:\PROGRA~2\Arduino\hardware\tools
 
