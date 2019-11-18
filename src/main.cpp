@@ -21,6 +21,9 @@
 #define MIN_BRIGHTNESS 10  //Increases contrast, however also decreases overall brightness
 #define SHIFT_BRI 0   // Should take values between 0 and 100ish (more than 100 is just overkill)
 
+const int AUTOMATON_INTERVAL = 600;
+const int FADE_INTERVAL = 600/30;
+
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <math.h>
@@ -28,31 +31,15 @@
 #include <TimeAlarms.h>
 #include "A80_Automaton.h"
 #include "A51_Masks.h"
+#include "Beam.h"
 #include "Screen.h"
-#include "Colore.h"
-
 
 
 uint32_t nextTime3 = 0;
 
 
 int low_threshold = 200;
-int high_threshold = 300; 
-
-
-#define LED_AM 120
-#define BEAM_AM 1
-
-Beam beams[BEAM_AM];
-
-Segment seg[] = {
-  Segment(0, 119)
-};
-
-
-byte segAm = sizeof(seg)/sizeof(Segment);
-
-
+int high_threshold = 300;
 
 
 
@@ -63,32 +50,6 @@ Adafruit_NeoPixel synapse_A = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE, SYNAPSE_1, NEO
 Adafruit_NeoPixel synapse_B = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE, SYNAPSE_2, NEO_GRB + NEO_KHZ800);
 
 
-
-void set_ledLib(int pixel, byte r, byte g, byte b){
-  synapse_A.setPixelColor(pixel, r, g, b);
-}
-
-void show_ledLib(){
-  synapse_A.show();
-}
-
-void reset_ledLib(){
-  for(int i=0; i<LED_AM; i++){
-    synapse_A.setPixelColor(i,0,0,0);
-  }
-}
-
-Color get_ledLib(int pixel){
-  uint32_t conn = synapse_A.getPixelColor(pixel);  // retrieve the color that has already been saved
-  byte b = conn & 255;       // unpack the color
-  byte g = conn >> 8 & 255;
-  byte r = conn >> 16 & 255;
-  Color pixelCol(r,g,b,RGB_MODE);
-  return pixelCol;
-}
-
-
-Colore colore( LED_AM, seg, segAm, beams, BEAM_AM, &set_ledLib, &get_ledLib, &show_ledLib, &reset_ledLib );
 
 //Automaton values:  target, reward, penalty, floorInit, minInit, maxInit
 //----------------------------------------------------------------------------------------Automatons for Side A
@@ -108,21 +69,22 @@ Screen screen_A = Screen(&fg_automaton_A, &bg_automaton_A, &grow_automaton_A, &s
 Screen screen_B = Screen(&fg_automaton_B, &bg_automaton_B, &grow_automaton_B, &sat_automaton_B, &matrix_B);
 
 
-int filter_hue(int hue){
+int filter_hue(int hue) {
   int dif = high_threshold - low_threshold;
-  if (hue > low_threshold && hue < high_threshold){
+  if (hue > low_threshold && hue < high_threshold) {
     hue = (hue + dif) % 360;
   }
   return hue;
 }
 
 
-int shift_bri(int bri){
+int shift_bri(int bri) {
   int val = bri;
-  if (val < 150){
+  if (val < 150) {
     val = 0;
-  } else {
-  val = min(255, bri + SHIFT_BRI);
+  }
+  else {
+    val = min(255, bri + SHIFT_BRI);
   }
   return val;
 }
@@ -152,47 +114,18 @@ int shift_bri(int bri){
 
 
 
-void send_pulse(Adafruit_NeoPixel * synapse, int hue, int pixel){
-  int r, g, b;
-  int sat = 255;
-  int bri = 255;
-    getRGB(hue, sat, bri, &r, &g, &b);
-    (*synapse).setPixelColor(pixel, r, g, b);
-    (*synapse).setPixelColor(pixel+1, r, g, b);
-    (*synapse).setPixelColor(pixel+2, r, g, b);
-    (*synapse).setPixelColor(pixel+3, r, g, b);
-    (*synapse).setPixelColor(pixel+4, r, g, b);
-
-}
-
-void send_pulse_full(Adafruit_NeoPixel * synapse, int hue){
-  int r, g, b;
-  int sat = 255;
-  int bri = 255;
-  for (int pixel = 0; pixel < NUM_LEDS_SYNAPSE; pixel++){
-    getRGB(hue, sat, bri, &r, &g, &b);
-    (*synapse).setPixelColor(pixel, r, g, b);
-    (*synapse).setPixelColor(pixel+1, r, g, b);
-    (*synapse).setPixelColor(pixel+2, r, g, b);
-    (*synapse).setPixelColor(pixel+3, r, g, b);
-    (*synapse).setPixelColor(pixel+4, r, g, b);
-    (*synapse).show();
-    (*synapse).clear();
-    (*synapse).show();
-  }
-
-}
-
-void init_A(){
+void init_A() {
   matrix_A.begin();
+  //matrix_A.setBrightness(30);
   fg_automaton_A.init();
   bg_automaton_A.init();
   grow_automaton_A.init_square();
   sat_automaton_A.init_square();
 }
 
-void init_B(){
+void init_B() {
   matrix_B.begin();
+  //matrix_B.setBrightness(30);
   fg_automaton_B.init();
   bg_automaton_B.init();
   grow_automaton_B.init_square();
@@ -201,51 +134,34 @@ void init_B(){
 
 
 
-void setup() { 
+void setup() {
   randomSeed(analogRead(17));
   init_A();
   init_B();
   synapse_A.begin();
-  //seg[0].setPulsate(Color(100, 20, 30, RGB_MODE), 2);
   delay(1000);
-  
 }
 
-int pixel = 0;
 void loop() {
-   
-  // if (millis() >= nextTime3){
-  //     //synapse_A.clear();
-  //     nextTime3 = millis() + (1000/FRAMERATE_PULSES);
-  //    pixel = (pixel + 1) % NUM_LEDS_SYNAPSE;
-  //    //send_pulse(&synapse_A, 200, pixel);
-  //   send_pulse_full(&synapse_A, 200);
-  // }
- 
-  //iterate();
-  //iterate_growth_automaton();
   screen_A.iterate_animation();
   screen_B.iterate_animation();
-  
-  colore.update();
-  matrix_A.show();
-  matrix_B.show();
-  //synapse_A.show();
-   
-   
 
-  // synapse_A.show();
+  renderInterrupt();
 }
 
 
 
-// void test_screen(){
-//   for (int i = 0; i < NUM_LEDS_SCREEN; i++){
-//     screen_A.setPixelColor(i, 0, 255, 0);
-//     screen_B.setPixelColor(i, 255, 0, 0);
-//     }
-//   screen_A.show();
-//   screen_B.show();
-// }
 
+void renderInterrupt() {
+  updateBeams();
+  updateScreensFade();
+}
 
+elapsedMillis sinceFadeUpdate = 0;
+void updateScreensFade() {
+  if (sinceFadeUpdate < FADE_INTERVAL) return;
+  sinceFadeUpdate = 0;
+
+  screen_A.updateFade();
+  screen_B.updateFade();
+}

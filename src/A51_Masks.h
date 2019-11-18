@@ -140,7 +140,7 @@ static const int dim_curve[] = {
     193, 196, 200, 203, 207, 211, 214, 218, 222, 226, 230, 234, 238, 242, 248, 255,
 };
 
-static void getRGB(int hue, int sat, int val, int* r, int* g, int* b) { 
+static void getRGB(int hue, int sat, int val, byte* r, byte* g, byte* b) {
   /* convert hue, saturation and brightness ( HSB/HSV ) to RGB
      The dim_curve is used only on brightness/value and on saturation (inverted).
      This looks the most natural.      
