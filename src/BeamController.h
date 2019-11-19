@@ -3,12 +3,12 @@
 Beam beams[BEAM_AM];
 
 elapsedMillis sinceBeamUpdate = 0;
-int beamUpdateInterval = 1000 / 60;
+int beamUpdateInterval = 1000/100;
 
 
 bool newBeam(Adafruit_NeoPixel* _strip, bool _direction, Color _color, float _length, int _duration) {
   for (int i = 0; i < BEAM_AM; i++) {
-    if (beams[i].active) {
+    if (!beams[i].active) {
       beams[i].begin(_strip, _direction, _color, _length, _duration);
       return true;
     }
@@ -17,7 +17,7 @@ bool newBeam(Adafruit_NeoPixel* _strip, bool _direction, Color _color, float _le
 }
 
 void updateBeams() {
-  if (sinceBeamUpdate < beamUpdateInterval) return;
+  if ((int)sinceBeamUpdate < beamUpdateInterval) return;
   sinceBeamUpdate = 0;
 
   synapse_A.clear();
@@ -29,6 +29,11 @@ void updateBeams() {
       beams[i].draw();
     }
   }
+
+  // for (int i = 0; i < synapse_B.numPixels(); i++) {
+  //   synapse_B.setPixelColor(i,50,0,10);
+  //   synapse_A.setPixelColor(i,50,0,10);
+  // }
 
   synapse_A.show();
   synapse_B.show();

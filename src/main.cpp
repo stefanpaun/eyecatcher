@@ -1,10 +1,10 @@
 
-#define SIZE_SCREEN 26  //CHANGE TO 24 after testing
-#define INT_MIN -32768
+#define SIZE_SCREEN 24 //CHANGE TO 24 after testing
 
 
 
-#define NUM_LEDS_SCREEN 676 //CHANGE TO 576 after testing, also update masks
+
+#define NUM_LEDS_SCREEN 576 //CHANGE TO 576 after testing, also update masks
 #define NUM_LEDS_SYNAPSE 120 //CHANGE THIS ACCORDINGLY
 #define NUM_STRIPS 1
 #define CHANNEL_A 7 //Data pin for Screen A
@@ -13,7 +13,7 @@
 #define SYNAPSE_1 2 //Data pin for SYNAPSE_1
 #define SYNAPSE_2 14 //Data pin for SYNAPSE_2
 
-#define FRAMERATE_GROW 6  //so far 2 seems to run fine, 4 
+#define FRAMERATE_GROW 10  //so far 2 seems to run fine, 4 
 #define FRAMERATE_VARIANCE 10
 #define FRAMERATE_PULSES 1
 
@@ -21,8 +21,8 @@
 #define MIN_BRIGHTNESS 10  //Increases contrast, however also decreases overall brightness
 #define SHIFT_BRI 0   // Should take values between 0 and 100ish (more than 100 is just overkill)
 
-const int AUTOMATON_INTERVAL = 600;
-const int FADE_INTERVAL = 600/30;
+const int AUTOMATON_INTERVAL = 400;
+const int FADE_INTERVAL = 1000/40 ;
 
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
@@ -31,7 +31,9 @@ const int FADE_INTERVAL = 600/30;
 #include <TimeAlarms.h>
 #include "A80_Automaton.h"
 #include "A51_Masks.h"
+#include "Color.h"
 #include "Beam.h"
+
 #include "Screen.h"
 
 
@@ -51,17 +53,19 @@ Adafruit_NeoPixel synapse_B = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE, SYNAPSE_2, NEO
 
 
 
+#include "BeamController.h"
+
 //Automaton values:  target, reward, penalty, floorInit, minInit, maxInit
 //----------------------------------------------------------------------------------------Automatons for Side A
 Automaton fg_automaton_A = Automaton(2, 1, 2, 0, 0, 10, false, mask_A, background_A);
 Automaton bg_automaton_A = Automaton(4, 1, 4, 0, 0, 1, true, mask_A, background_A);
 Automaton grow_automaton_A = Automaton(3, 1, 3, 0, 10, 20, false, mask_A, background_A);
-Automaton sat_automaton_A = Automaton(2, 1, 1, 0, 1, 10, false, mask_A, background_A);
+Automaton sat_automaton_A = Automaton(1, 1, 1, 0, 0, 1, false, mask_A, background_A);
 //----------------------------------------------------------------------------------------Automatons for Side B
 Automaton fg_automaton_B = Automaton(2, 1, 2, 0, 0, 10, false, mask_B, background_B);
 Automaton bg_automaton_B = Automaton(4, 1, 4, 0, 0, 1, true, mask_B, background_B);
 Automaton grow_automaton_B = Automaton(3, 1, 3, 0, 10, 20, false, mask_B, background_B);
-Automaton sat_automaton_B = Automaton(2, 1, 1, 0, 1, 10, false, mask_B, background_B);
+Automaton sat_automaton_B = Automaton(1, 1, 1, 0, 0, 1, false, mask_B, background_B);
 
 
 //-----------------------------------------------------------------------------------------
@@ -78,16 +82,6 @@ int filter_hue(int hue) {
 }
 
 
-int shift_bri(int bri) {
-  int val = bri;
-  if (val < 150) {
-    val = 0;
-  }
-  else {
-    val = min(255, bri + SHIFT_BRI);
-  }
-  return val;
-}
 
 //TEST FUNCTION
 // int get_hue(nextCol * nextColors){
@@ -116,7 +110,7 @@ int shift_bri(int bri) {
 
 void init_A() {
   matrix_A.begin();
-  //matrix_A.setBrightness(30);
+  //matrix_A.setBrightness(255);
   fg_automaton_A.init();
   bg_automaton_A.init();
   grow_automaton_A.init_square();
@@ -125,37 +119,13 @@ void init_A() {
 
 void init_B() {
   matrix_B.begin();
-  //matrix_B.setBrightness(30);
+  //matrix_B.setBrightness(255);
   fg_automaton_B.init();
   bg_automaton_B.init();
   grow_automaton_B.init_square();
   sat_automaton_B.init_square();
 }
 
-
-
-void setup() {
-  randomSeed(analogRead(17));
-  init_A();
-  init_B();
-  synapse_A.begin();
-  delay(1000);
-}
-
-void loop() {
-  screen_A.iterate_animation();
-  screen_B.iterate_animation();
-
-  renderInterrupt();
-}
-
-
-
-
-void renderInterrupt() {
-  updateBeams();
-  updateScreensFade();
-}
 
 elapsedMillis sinceFadeUpdate = 0;
 void updateScreensFade() {
@@ -165,3 +135,37 @@ void updateScreensFade() {
   screen_A.updateFade();
   screen_B.updateFade();
 }
+
+void renderInterrupt() {
+  updateBeams();
+  updateScreensFade();
+}
+
+
+
+
+void setup() {
+  randomSeed(analogRead(17));
+  init_A();
+  init_B();
+  synapse_A.begin();
+  synapse_B.begin();
+  delay(1000);
+}
+
+elapsedMillis sinceBeam = 0;
+
+void loop() {
+  if(sinceBeam>1000){
+    sinceBeam = 0;
+    newBeam(&synapse_B, random(0,2), Color(random(0,360), 100, 100, HSB_MODE),random(6,50),random(300,1000));
+    newBeam(&synapse_A, random(0,2), Color(random(0,360), 100, 100, HSB_MODE),random(6,50),random(300,1000));
+  }
+
+
+  screen_A.iterate_animation();
+  screen_B.iterate_animation();
+
+  renderInterrupt();
+}
+

@@ -1,4 +1,5 @@
-#include "Color.h"
+#define LOW_BRI 150
+#define HIGH_BRI 255
 
 class Screen {
 
@@ -31,6 +32,16 @@ public:
 	ColorMatrix* currGoal_colors = new ColorMatrix;
 	ColorMatrix* nextGoal_colors = new ColorMatrix;
 
+	int shift_bri(int bri) {
+		int val = bri;
+		if (val > 150){
+			val = constrain(val+150, LOW_BRI, HIGH_BRI);
+		} else {
+			val = 0;
+		}
+		
+		return val;
+	}
 
 
 	void gen_color_matrix() {
@@ -43,12 +54,12 @@ public:
 				else {
 					hue = (*_bg_automaton).colorMap(x, y);
 				}
-
 				bri = (*_grow_automaton).brightnessMap(x, y);
 				sat = (*_sat_automaton).saturationMap(x, y);
+				
 
 				//hue = filter_hue(hue);
-				//bri = shift_bri(bri);
+				bri = shift_bri(bri);
 
 				getRGB(hue, sat, bri, &nextGoal_colors->pixel[x][y].r, &nextGoal_colors->pixel[x][y].g, &nextGoal_colors->pixel[x][y].b);
 			}
@@ -90,14 +101,19 @@ public:
 		_screen->show();
 	}
 
+
+	int ratio = 0;
 	void iterate_animation() {
 		if (newFrameReady) return;
 
 		(*_fg_automaton).iterate();
 		(*_bg_automaton).iterate();
-
-		(*_grow_automaton).iterate_growth();
-		(*_sat_automaton).iterate();
+		ratio++;
+		if (ratio == 1){
+			(*_grow_automaton).iterate_growth();
+			(*_sat_automaton).iterate();
+			ratio = 0;
+		}
 
 		gen_color_matrix();
 

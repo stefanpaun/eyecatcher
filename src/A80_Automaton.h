@@ -1,5 +1,7 @@
 #include "A50_Cellmask.h"
 
+void renderInterrupt();
+
 class Automaton {
 
   
@@ -43,6 +45,7 @@ class Automaton {
     void iterate(){
       int neighbours[8] = {0, 0, 0, 0, 0, 0, 0, 0};
       for (int x = 0; x < SIZE_SCREEN; x++){
+        renderInterrupt();
         for (int y = 0; y < SIZE_SCREEN; y++){
           int index = 0;
           if (can_color(x, y)) {
@@ -75,6 +78,7 @@ class Automaton {
     void iterate_growth(){
       int neighbours[8] = {0, 0, 0, 0, 0, 0, 0, 0};
       for (int x = 0; x < SIZE_SCREEN; x++){
+        renderInterrupt();
         for (int y = 0; y < SIZE_SCREEN; y++){
           int index = 0;
           for (int dx = -1; dx <= 1; dx++){
@@ -101,8 +105,7 @@ class Automaton {
       }
       }
 
-    int getSums(int neighbours[], int neighboursLength, int target){
-      int canSum = 0;
+    boolean canSum(int neighbours[], int neighboursLength, int target){
       for (int i = 1; i < pow(2, neighboursLength); i++){
         int sum = 0;
         for (int j = 0; j < neighboursLength; j++){
@@ -112,21 +115,13 @@ class Automaton {
           }
         }
         if (sum == target) {
-          canSum ++;
-          return canSum;
+          return true;
         }
       }
-      return canSum;
+      return false;
     }
   
-    boolean canSum(int neighbours[], int neighboursLength, int target){
-      if (getSums(neighbours, neighboursLength, target) > 0){
-        return true;
-      } else {
-        return false;
-      }
-    }
-  
+   
   int mod(int x, int m){
     return ((x % m + m) % m);
   }
@@ -140,13 +135,14 @@ class Automaton {
   int brightnessMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return (cells[x][y] * 20) % 255;
+    return (cells[x][y]*10) % 255;
   }
 
   int saturationMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return max((cells[x][y] + 150) % 255, 100);
+    return max((cells[x][y]+50) % 255, 200);
+     //return max(((cells[x][y]*5+100))%255,180);
   }
   boolean allZero() {
     for (int x = 0; x < SIZE_SCREEN; x++) {

@@ -8,11 +8,5 @@ C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/
  core/Arduino.h core/IntervalTimer.h \
  lib/Adafruit_NeoPixel/Adafruit_NeoPixel.h lib/Time/Time.h \
  lib/Time/TimeLib.h lib/TimeAlarms/TimeAlarms.h lib/Time/TimeLib.h \
- src/A80_Automaton.h src/A50_Cellmask.h src/A51_Masks.h src/Screen.h \
- C:\Users\stefa\Documents\Arduino\libraries/Colore/Colore.h \
- C:\Users\stefa\Documents\Arduino\libraries/Colore/Color.h \
- C:\Users\stefa\Documents\Arduino\libraries/Colore/Segment.h \
- C:\Users\stefa\Documents\Arduino\libraries/Colore/Beam.h \
- C:\Users\stefa\Documents\Arduino\libraries/Colore/BeamControl.h \
- C:\Users\stefa\Documents\Arduino\libraries/Colore/Neural.h \
- C:\Users\stefa\Documents\Arduino\libraries/Colore/NetworkSearch.h
+ src/A80_Automaton.h src/A50_Cellmask.h src/A51_Masks.h src/Color.h \
+ src/Beam.h src/Screen.h src/BeamController.h
