@@ -3,7 +3,7 @@
 Beam beams[BEAM_AM];
 
 elapsedMillis sinceBeamUpdate = 0;
-int beamUpdateInterval = 1000/100;
+
 
 
 bool newBeam(Adafruit_NeoPixel* _strip, bool _direction, Color _color, float _length, int _duration) {
@@ -17,7 +17,7 @@ bool newBeam(Adafruit_NeoPixel* _strip, bool _direction, Color _color, float _le
 }
 
 void updateBeams() {
-  if ((int)sinceBeamUpdate < beamUpdateInterval) return;
+  if ((int)sinceBeamUpdate < BEAM_UPDATE_INTERVAL) return;
   sinceBeamUpdate = 0;
 
   synapse_A.clear();

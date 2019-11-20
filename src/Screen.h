@@ -1,5 +1,3 @@
-#define LOW_BRI 150
-#define HIGH_BRI 255
 
 class Screen {
 
@@ -35,7 +33,7 @@ public:
 	int shift_bri(int bri) {
 		int val = bri;
 		if (val > 150){
-			val = constrain(val+150, LOW_BRI, HIGH_BRI);
+			val = constrain(val+SHIFT_BRI, LOW_BRI, HIGH_BRI);
 		} else {
 			val = 0;
 		}

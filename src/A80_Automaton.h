@@ -1,5 +1,9 @@
 #include "A50_Cellmask.h"
 
+
+#define MAX_INIT 18 
+#define MIN_INIT 6
+
 void renderInterrupt();
 
 class Automaton {
@@ -163,44 +167,64 @@ class Automaton {
     }
   }
 
-  void init_line() {
-    int maxInit = 16;
-    int minInit = 8;
+  void init_line(int size, bool rand) {
     int cx, cy;
-    cx = int(random(maxInit - minInit + 2) + minInit - 1);
-    cy = int(random(maxInit - minInit + 2) + minInit - 1);
-    for (int y = cy - 3 ; y < cy + 3; y++){
-      cells[cx][y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);   
+    cx = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+    cy = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+    for (int y = 0 ; y < size; y++){
+      if (rand){
+        cells[cx][cy + y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);
+      } else {
+        cells[cx][cy + y] = _target;
+      }   
     }
   }
 
-  void init_square(){
-    int maxInit = 16;
-    int minInit = 8;
+  void init_square(int size, bool rand){
     int cx, cy;
-    cx = int(random(maxInit - minInit + 2) + minInit - 1);
-    cy = int(random(maxInit - minInit + 2) + minInit - 1);
-    for (int y = cy - 3 ; y < cy + 3; y++){
-      for (int x = cx - 3; x < cx + 3; x++){
-        cells[x][y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);   
+    cx = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+    cy = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+    for (int y = cy - int(size/2) ; y < cy + int(size/2); y++){
+      for (int x = cx - int(size/2); x < cx + int(size/2); x++){
+        if (rand){
+          cells[x][y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);
+        } else {
+          cells[x][y] = _target;
+        }   
       }
     }
   }
 
-  void init_multiple(int num){
-    int maxInit = 18;
-    int minInit = 6;
+  void init_multiple(int num, bool rand){
     int cx, cy;
     for(int k = 0; k < num; k++){
-      cx = int(random(maxInit - minInit + 2) + minInit - 1);
-      cy = int(random(maxInit - minInit + 2) + minInit - 1);
-      for (int y = cy; y < cy + 1; y++){
-        for (int x = cx; x < cx + 1; x++){
-          cells[x][y] = int(random(_maxInit - _minInit + 2) + _minInit - 1);   
+      cx = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+      cy = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+      if(rand){
+        cells[cx][cy] = int(random(_maxInit - _minInit + 2) + _minInit - 1);   
+      } else {
+        cells[cx][cy] = _target;
+      }
+    } 
+  }
+
+void init_circle(int size, boolean rand){
+  int midPoint_x = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+  int midPoint_y = int(random(MAX_INIT - MIN_INIT + 2) + MIN_INIT - 1);
+  for (int col = 0; col < SIZE_SCREEN; col++){
+    double yy = col-midPoint_x;
+    for (int x= 0; x< SIZE_SCREEN; x++){
+      double xx = x-midPoint_y;
+      if (sqrt(xx*xx+yy*yy) <= size){
+        if (rand){
+        cells[x][col] = int(random(_maxInit - _minInit + 2) + _minInit - 1);
+        } else {
+        cells[x][col] = _target;
         }
       }
     }
-
   }
+}
+
 
 };
