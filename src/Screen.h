@@ -5,6 +5,8 @@ class Screen {
 		RGB pixel[SIZE_SCREEN][SIZE_SCREEN] = {{{0,0,0}}};
 	} ColorMatrix;
 
+	
+
 private:
 	Automaton * _bg_automaton;
 	Automaton * _fg_automaton;
@@ -86,13 +88,13 @@ public:
 				prev_colors = currGoal_colors;
 				currGoal_colors = nextGoal_colors;
 				nextGoal_colors = temp;
-				fadeStart = millis();
+				fadeStart = rtcMillis();
         newFrameReady = false;
 			}
 			else return;
 		}
 
-		fadeFactor = (float)(millis() - fadeStart) / AUTOMATON_INTERVAL;
+		fadeFactor = (float)(rtcMillis() - fadeStart) / AUTOMATON_INTERVAL;
 		fadeFactor = min(fadeFactor, 1);
 
 		interpolate_colors();

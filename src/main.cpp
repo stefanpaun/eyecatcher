@@ -1,4 +1,9 @@
+//-------NOTE: if you do clean, don't forget to fix core_pins.h for milis()
+
+
 #define POD_ID 1                //ID of the teensy corresponding to the pod (1 - 5)
+
+
 
 
 //--------------Parameters for LEDs
@@ -19,16 +24,21 @@
 #define FRAMERATE_PULSES 1
 
 #define AUTOMATON_INTERVAL 400
-#define FADE_INTERVAL 1000/40 
-#define BEAM_UPDATE_INTERVAL 1000/200
-#define BEAM_FREQUENCY_INTERVAL 1000
+#define FADE_INTERVAL 1000/60 
+#define BEAM_UPDATE_INTERVAL 1000/100
+#define BEAM_FREQUENCY_INTERVAL 800
 
 
 //------------Parameters for brightness shifting
-#define SHIFT_BRI 150  
+#define SHIFT_BRI 100  
 #define LOW_BRI 150
 #define HIGH_BRI 255
 
+
+#define LINE 1
+#define SQUARE 2
+#define CIRCLE 3
+#define MULTIPLE 4
 
 //------------Parameters for hue filtering
 int low_threshold = 200;
@@ -62,15 +72,15 @@ Adafruit_NeoPixel synapse_B = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE, SYNAPSE_2, NEO
 
 //Automaton values:  target, reward, penalty, floorInit, minInit, maxInit
 //----------------------------------------------------------------------------------------Automatons for Side A
-Automaton fg_automaton_A = Automaton(2, 1, 2, 0, 0, 10, false, mask_A, background_A);
-Automaton bg_automaton_A = Automaton(4, 1, 4, 0, 0, 1, true, mask_A, background_A);
-Automaton grow_automaton_A = Automaton(3, 1, 3, 0, 10, 20, false, mask_A, background_A);
-Automaton sat_automaton_A = Automaton(1, 1, 1, 0, 0, 1, false, mask_A, background_A);
+Automaton fg_automaton_A; // = Automaton(2, 1, 2, 0, 0, 10, false, mask_A, background_A);
+Automaton bg_automaton_A; // = Automaton(4, 1, 4, 0, 0, 1, true, mask_A, background_A);
+Automaton grow_automaton_A; // = Automaton(3, 1, 3, 0, 10, 20, false, mask_A, background_A);
+Automaton sat_automaton_A; // = Automaton(1, 1, 1, 0, 0, 1, false, mask_A, background_A);
 //----------------------------------------------------------------------------------------Automatons for Side B
-Automaton fg_automaton_B = Automaton(2, 1, 2, 0, 0, 10, false, mask_B, background_B);
-Automaton bg_automaton_B = Automaton(4, 1, 4, 0, 0, 1, true, mask_B, background_B);
-Automaton grow_automaton_B = Automaton(3, 1, 3, 0, 10, 20, false, mask_B, background_B);
-Automaton sat_automaton_B = Automaton(1, 1, 1, 0, 0, 1, false, mask_B, background_B);
+Automaton fg_automaton_B; // = Automaton(2, 1, 2, 0, 0, 10, false, mask_B, background_B);
+Automaton bg_automaton_B; //= Automaton(4, 1, 4, 0, 0, 1, true, mask_B, background_B);
+Automaton grow_automaton_B; //= Automaton(3, 1, 3, 0, 10, 20, false, mask_B, background_B);
+Automaton sat_automaton_B; //= Automaton(1, 1, 1, 0, 0, 1, false, mask_B, background_B);
 
 
 //-----------------------------------------------------------------------------------------
@@ -122,23 +132,61 @@ void renderInterrupt() {
 
 
 
+typedef struct {
+  int target;
+  int penalty;
+  int reward;
+  int floorInit;
+  int minInit;
+  int maxInit;
+} AutomatonValues;
 
-void setup() {
-  randomSeed(analogRead(17));
-  init_A();
-  init_B();
-  synapse_A.begin();
-  synapse_B.begin();
-  delay(1000);
+
+void initialize_automaton_A(Automaton * automaton, AutomatonValues * val, bool bg){
+  *automaton = Automaton((*val).target, (*val).penalty, (*val).reward, (*val).floorInit, (*val).minInit, (*val).maxInit, bg, mask_A, background_A);
+}
+
+void initialize_automaton_B(Automaton * automaton, AutomatonValues * val, bool bg){
+  *automaton = Automaton((*val).target, (*val).penalty, (*val).reward, (*val).floorInit, (*val).minInit, (*val).maxInit, bg, mask_B, background_B);
+}
+
+void initialize_seed(Automaton * automaton, int seed){
+  switch (seed){
+    case LINE:
+      (*automaton).init_line(4, true);
+  }
 }
 
 elapsedMillis sinceBeam = 0;
 
+void setup() {
+  randomSeed(analogRead(17));
+  fg_automaton_A = Automaton(2, 1, 2, 0, 0, 10, false, mask_A, background_A);
+  bg_automaton_A = Automaton(4, 1, 4, 0, 0, 1, true, mask_A, background_A);
+  grow_automaton_A = Automaton(3, 1, 3, 0, 10, 20, false, mask_A, background_A);
+  sat_automaton_A = Automaton(1, 1, 1, 0, 0, 1, false, mask_A, background_A);
+//----------------------------------------------------------------------------------------Automatons for Side B
+  fg_automaton_B = Automaton(2, 1, 2, 0, 0, 10, false, mask_B, background_B);
+  bg_automaton_B= Automaton(4, 1, 4, 0, 0, 1, true, mask_B, background_B);
+  grow_automaton_B = Automaton(3, 1, 3, 0, 10, 20, false, mask_B, background_B);
+  sat_automaton_B = Automaton(1, 1, 1, 0, 0, 1, false, mask_B, background_B);
+  init_A();
+  init_B();
+  synapse_A.begin();
+  synapse_B.begin();
+  rtc_set(0);
+  sinceBeam = 0;
+  delay(1000);
+  
+}
+
+
+
 void loop() {
-  if(sinceBeam>BEAM_FREQUENCY_INTERVAL){
+  if(sinceBeam > BEAM_FREQUENCY_INTERVAL){
     sinceBeam = 0;
-    newBeam(&synapse_B, random(0,2), Color(random(0,360), 100, 100, HSB_MODE),random(6,50),random(300,1000));
-    newBeam(&synapse_A, random(0,2), Color(random(0,360), 100, 100, HSB_MODE),random(6,50),random(300,1000));
+    newBeam(&synapse_B, random(0,2), Color(random(0,360), 100, 100, HSB_MODE),random(6,50),random(1500,3000));
+    newBeam(&synapse_A, random(0,2), Color(random(0,360), 255, 255, HSB_MODE),random(6,50),random(1500,3000));
   }
 
 

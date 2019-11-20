@@ -32,17 +32,17 @@ void begin(Adafruit_NeoPixel * _strip, bool _direction, Color _color, float _len
 	color = _color;
 	length = _length;
 	duration = _duration;
-	startTime = millis();
+	startTime = rtcMillis();
 }
 
 void update() {
 	if (!active) return;
-	if (millis() > startTime + duration) {
+	if (rtcMillis() > startTime + duration) {
 		active = false;
 		return;
 	}
 
-	float posFac = (float)(millis() - startTime) / duration;
+	float posFac = (float)(rtcMillis() - startTime) / duration;
 	if (direction == DOWN) posFac = 1 - posFac;
 	position = (strip->numPixels() + length) * posFac - length / 2;
 }

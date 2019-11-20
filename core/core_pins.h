@@ -1442,7 +1442,34 @@ extern volatile uint32_t systick_millis_count;
 static inline uint32_t millis(void) __attribute__((always_inline, unused));
 static inline uint32_t millis(void)
 {
+	// uint32_t hi1 = SNVS_HPRTCMR;
+	// uint32_t lo1 = SNVS_HPRTCLR;
+	// while (1) {
+	// 	uint32_t hi2 = SNVS_HPRTCMR;
+	// 	uint32_t lo2 = SNVS_HPRTCLR;
+	// 	if (lo1 == lo2 && hi1 == hi2) {
+	// 		return ((hi2 << 27) | (lo2 >> 5))/1.024;
+	// 	}
+	// 	hi1 = hi2;
+	// 	lo1 = lo2;
+	// }
 	return systick_millis_count;
+}
+
+static inline uint32_t rtcMillis(void) __attribute__((always_inline, unused));
+static inline uint32_t rtcMillis(void)
+{
+  uint32_t hi1 = SNVS_HPRTCMR;
+  uint32_t lo1 = SNVS_HPRTCLR;
+  while (1) {
+    uint32_t hi2 = SNVS_HPRTCMR;
+    uint32_t lo2 = SNVS_HPRTCLR;
+    if (lo1 == lo2 && hi1 == hi2) {
+      return ((hi2 << 27) | (lo2 >> 5))/1.024;
+    }
+    hi1 = hi2;
+    lo1 = lo2;
+  }
 }
 
 uint32_t micros(void);

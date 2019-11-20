@@ -31,17 +31,19 @@
 #include "WProgram.h"
 #endif
 
+
+
 class elapsedMillis
 {
 private:
 	unsigned long ms;
 public:
-	elapsedMillis(void) { ms = millis(); }
-	elapsedMillis(unsigned long val) { ms = millis() - val; }
+	elapsedMillis(void) { ms = rtcMillis(); }
+	elapsedMillis(unsigned long val) { ms = rtcMillis() - val; }
 	elapsedMillis(const elapsedMillis &orig) { ms = orig.ms; }
-	operator unsigned long () const { return millis() - ms; }
+	operator unsigned long () const { return  rtcMillis() - ms; }
 	elapsedMillis & operator = (const elapsedMillis &rhs) { ms = rhs.ms; return *this; }
-	elapsedMillis & operator = (unsigned long val) { ms = millis() - val; return *this; }
+	elapsedMillis & operator = (unsigned long val) { ms =  rtcMillis() - val; return *this; }
 	elapsedMillis & operator -= (unsigned long val)      { ms += val ; return *this; }
 	elapsedMillis & operator += (unsigned long val)      { ms -= val ; return *this; }
 	elapsedMillis operator - (int val) const           { elapsedMillis r(*this); r.ms += val; return r; }

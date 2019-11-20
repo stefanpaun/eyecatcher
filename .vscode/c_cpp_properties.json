@@ -5,7 +5,6 @@
       "includePath": [
         "src/**",
         "C:\\Program Files (x86)\\Arduino\\hardware\\teensy\\avr\\cores\\teensy4",
-        "C:/Users/stefa/Documents/Arduino/libraries/Colore/**",
         "lib/Adafruit_NeoPixel/**",
         "lib/Time/**",
         "lib/TimeAlarms/**",

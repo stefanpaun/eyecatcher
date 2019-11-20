@@ -10,6 +10,7 @@ bool newBeam(Adafruit_NeoPixel* _strip, bool _direction, Color _color, float _le
   for (int i = 0; i < BEAM_AM; i++) {
     if (!beams[i].active) {
       beams[i].begin(_strip, _direction, _color, _length, _duration);
+      sinceBeamUpdate = 0;
       return true;
     }
   }
