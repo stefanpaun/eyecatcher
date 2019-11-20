@@ -1,0 +1,31 @@
+- In:
+
+C:\Program Files (x86)\Arduino\hardware\teensy\avr\cores\teensy4\core_pins.h
+
+
+
+- Change:
+
+static inline uint32_t millis(void)
+{
+	return systick_millis_count;
+}
+
+
+
+- To:
+
+static inline uint32_t millis(void)
+{
+	uint32_t hi1 = SNVS_HPRTCMR;
+	uint32_t lo1 = SNVS_HPRTCLR;
+	while (1) {
+		uint32_t hi2 = SNVS_HPRTCMR;
+		uint32_t lo2 = SNVS_HPRTCLR;
+		if (lo1 == lo2 && hi1 == hi2) {
+			return ((hi2 << 27) | (lo2 >> 5))/1.024;
+		}
+		hi1 = hi2;
+		lo1 = lo2;
+	}
+}
