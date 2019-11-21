@@ -1,10 +1,40 @@
-
+#define ALL 0
+#define LINE 1
+#define SQUARE 2
+#define CIRCLE 3
+#define MULTIPLE 4
 class Screen {
 
 	typedef struct {
 		RGB pixel[SIZE_SCREEN][SIZE_SCREEN] = {{{0,0,0}}};
 	} ColorMatrix;
 
+	typedef struct {
+		int target;
+		int penalty;
+		int reward;
+		int floorInit;
+		int minInit;
+		int maxInit;
+	} AutomatonValues;
+
+	typedef struct {
+		int seed;
+		int size;
+		bool rand;
+	} Seed;
+	
+	AutomatonValues possible_automatons[4] = {
+		{2, 1, 2, 0, 0, 10},
+		{4, 1, 4, 0, 0, 1},
+		{3, 1, 3, 0, 10, 20},
+		{1, 1, 1, 0, 0, 1}
+	};
+
+	Seed possible_seeds[2] = {
+		{ALL, 1, true},
+		{SQUARE, random(2, 6), true},
+	};
 	
 
 private:
@@ -13,20 +43,72 @@ private:
 	Automaton * _grow_automaton;
 	Automaton * _sat_automaton;
 	Adafruit_NeoPixel * _screen;
+	Cellmask  (*_mask)[SIZE_SCREEN][SIZE_SCREEN];
+	boolean (*_bg_mask)[SIZE_SCREEN][SIZE_SCREEN];
 	bool newFrameReady;
-
+	int ratio = 0;
 	float fadeFactor = 0;
 	unsigned long fadeStart = 0;
 
 public:
-	Screen(Automaton * fg_automaton, Automaton * bg_automaton, Automaton * grow_automaton, Automaton * sat_automaton, Adafruit_NeoPixel * screen) {
+
+	Screen(Automaton * fg_automaton, Automaton * bg_automaton, Automaton * grow_automaton, Automaton * sat_automaton, Adafruit_NeoPixel * screen, Cellmask (* mask)[SIZE_SCREEN][SIZE_SCREEN], boolean (* bg_mask)[SIZE_SCREEN][SIZE_SCREEN]) {
 		_bg_automaton = bg_automaton;
 		_fg_automaton = fg_automaton;
 		_grow_automaton = grow_automaton;
 		_sat_automaton = sat_automaton;
 		_screen = screen;
+		_mask = mask;
+		_bg_mask = bg_mask;
 		newFrameReady = false;
+		
 	}
+
+	void define_automaton(){
+		initialize_automaton(_fg_automaton, &possible_automatons[0], false);
+		initialize_automaton(_bg_automaton, &possible_automatons[1], true);
+		initialize_automaton(_grow_automaton, &possible_automatons[2], true);
+		initialize_automaton(_sat_automaton, &possible_automatons[3], true);
+	}
+
+	void define_seeds(){
+		initialize_seed(_fg_automaton, possible_seeds[0]);
+		initialize_seed(_bg_automaton, possible_seeds[0]);
+		initialize_seed(_grow_automaton, possible_seeds[1]);
+		initialize_seed(_sat_automaton, possible_seeds[1]);
+	}
+
+	void initialize_automaton(Automaton * automaton, AutomatonValues * val, bool bg){
+		*automaton = Automaton((*val).target, (*val).penalty, (*val).reward, (*val).floorInit, (*val).minInit, (*val).maxInit, bg, *_mask, *_bg_mask);
+	}
+
+	void initialize_seed(Automaton * automaton, Seed init_seed){
+		switch (init_seed.seed){
+			case LINE:
+				(*automaton).init_line(init_seed.size, init_seed.rand);
+				break;
+			case SQUARE:
+				(*automaton).init_square(init_seed.size, init_seed.rand);
+				break;
+			case CIRCLE:
+				(*automaton).init_circle(init_seed.size, init_seed.rand);
+				break;
+			case MULTIPLE:
+				(*automaton).init_multiple(init_seed.size, init_seed.rand);
+				break;
+			default:
+				(*automaton).init();
+			
+		}
+	}
+
+	void init_screen() {	
+		_screen->begin();
+		_screen->setBrightness(HIGH_BRI);
+		define_automaton();
+		define_seeds();
+	}
+
 
 	ColorMatrix* prev_colors = new ColorMatrix;
 	ColorMatrix* currGoal_colors = new ColorMatrix;
@@ -102,16 +184,15 @@ public:
 	}
 
 
-	int ratio = 0;
+	
 	void iterate_animation() {
 		if (newFrameReady) return;
-
 		(*_fg_automaton).iterate();
 		(*_bg_automaton).iterate();
 		ratio++;
-		if (ratio == 1){
+		if (ratio == RATIO_GROWTH){
 			(*_grow_automaton).iterate_growth();
-			(*_sat_automaton).iterate();
+			(*_sat_automaton).iterate_growth();
 			ratio = 0;
 		}
 

@@ -21,7 +21,7 @@ class Automaton {
     int nextCells[SIZE_SCREEN][SIZE_SCREEN];
     Cellmask (*_cellmask)[SIZE_SCREEN];
     const boolean (*_background)[SIZE_SCREEN];
-    Automaton(int target, int reward, int penalty, int floorInit, int minInit, int maxInit, bool isBg, Cellmask current_mask[SIZE_SCREEN][SIZE_SCREEN], const boolean current_bg[SIZE_SCREEN][SIZE_SCREEN]) {
+    Automaton(int target, int reward, int penalty, int floorInit, int minInit, int maxInit, bool isBg, Cellmask current_mask[SIZE_SCREEN][SIZE_SCREEN], boolean current_bg[SIZE_SCREEN][SIZE_SCREEN]) {
       _target = target;
       _penalty = penalty;
       _reward = reward;
@@ -147,7 +147,7 @@ class Automaton {
   int saturationMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return max((cells[x][y]+50) % 255, 200);
+    return max((cells[x][y]+50) % 255, 220);
      //return max(((cells[x][y]*5+100))%255,180);
   }
   boolean allZero() {
