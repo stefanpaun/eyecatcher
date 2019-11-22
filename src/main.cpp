@@ -11,6 +11,16 @@
 #define NUM_LEDS_SCREEN 576     //Number of LEDs for 24x24 matrix
 #define NUM_LEDS_SYNAPSE 120    //CHANGE THIS ACCORDINGLY----------------------!!!!!!!!!!!!!!!
 
+
+//POD 1 - POD 2 = 91 LEDs
+//POD 1 - POD 3 = 160 LEDs
+
+//POD 3 - POD 4 = 99 LEDs
+//POD 3 - POD 2 = 112 LEDs
+
+//POD 5 - POD 4 = 115 LEDs
+//POD 5 - POD 2 = 156 LEDs
+
 #define CHANNEL_A 7             //Data pin for Screen_A
 #define CHANNEL_B 8             //Data pin for Screen_B
 #define SYNAPSE_1 2             //Data pin for SYNAPSE_1

@@ -139,9 +139,14 @@ public:
 				bri = (*_grow_automaton).brightnessMap(x, y);
 				sat = (*_sat_automaton).saturationMap(x, y);
 				
+				// hue = (*_mask)[x][y].getHue();
+				// bri = (*_mask)[x][y].getBright();
+				// sat = (*_mask)[x][y].getSaturation();
 
+
+				//hue = (hue + 100)%360;
 				//hue = filter_hue(hue);
-				bri = shift_bri(bri);
+				//bri = shift_bri(bri);
 
 				getRGB(hue, sat, bri, &nextGoal_colors->pixel[x][y].r, &nextGoal_colors->pixel[x][y].g, &nextGoal_colors->pixel[x][y].b);
 			}
