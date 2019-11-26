@@ -1,6 +1,6 @@
   //IMG 1A
   
-  #if POD_ID == 1 
+  #if POD_ID == 2 
   static Cellmask mask_A[SIZE_SCREEN][SIZE_SCREEN] = 
   {
     {Cellmask(120, 255, 0), Cellmask(120, 255, 120), Cellmask(120, 255, 120), Cellmask(120, 255, 120), Cellmask(261, 152, 104), Cellmask(261, 152, 104), Cellmask(343, 214, 112), Cellmask(261, 152, 104), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 1), Cellmask(120, 255, 0), },
@@ -114,7 +114,7 @@
     {true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, true, false, false, false, false, false, true, true, true, },
   };
 
-#elif POD_ID == 2 
+#elif POD_ID == 4
 
   static Cellmask mask_A[SIZE_SCREEN][SIZE_SCREEN] = 
   {  
@@ -342,7 +342,7 @@ static Cellmask mask_A[SIZE_SCREEN][SIZE_SCREEN] =
     {true, true, true, true, true, true, true, true, true, true, true, false, false, false, false, false, false, true, true, true, true, true, true, true, },
   };
 
-#elif POD_ID == 4
+#elif POD_ID == 1
 
 static Cellmask mask_A[SIZE_SCREEN][SIZE_SCREEN] = 
   {  

@@ -8,7 +8,8 @@
         "lib/Adafruit_NeoPixel/**",
         "lib/Time/**",
         "lib/TimeAlarms/**",
-        "lib/TimerOne/**"
+        "lib/TimerOne/**",
+        "lib/SoftwareSerial/**"
       ],
       "forcedInclude": [],
       "defines": [

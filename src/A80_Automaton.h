@@ -1,8 +1,8 @@
 #include "A50_Cellmask.h"
 
 
-#define MAX_INIT 18 
-#define MIN_INIT 6
+#define MAX_INIT 15 
+#define MIN_INIT 9
 
 void renderInterrupt();
 
@@ -135,13 +135,13 @@ class Automaton {
   int colorMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return cells[x][y] % 360;
+    return cells[x][y]*10 % 360;
   }
 
   int brightnessMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return (cells[x][y]*10) % 255;
+    return (cells[x][y]*5) % 255;
   }
 
   int saturationMap(int x, int y){
@@ -224,6 +224,22 @@ void init_circle(int size, boolean rand){
         cells[x][col] = _target;
         }
       }
+    }
+  }
+}
+
+void init_implosion(boolean rand){
+  for (int i = 0; i < SIZE_SCREEN; i++){
+    if (rand){
+      cells[0][i] = int(random(_maxInit - _minInit + 2) + _minInit - 1);
+      cells[SIZE_SCREEN-1][i] = int(random(_maxInit - _minInit + 2) + _minInit - 1);
+      cells[i][0] = int(random(_maxInit - _minInit + 2) + _minInit - 1);
+      cells[i][SIZE_SCREEN-1] = int(random(_maxInit - _minInit + 2) + _minInit - 1);
+    } else {
+      cells[0][i] = _target;
+      cells[SIZE_SCREEN-1][i] = _target;
+      cells[i][0] = _target;
+      cells[i][SIZE_SCREEN-1] = _target;
     }
   }
 }

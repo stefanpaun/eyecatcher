@@ -1,25 +1,43 @@
 //-------NOTE: if you do clean, don't forget to fix core_pins.h for milis()
 
 
-#define POD_ID 1                //ID of the teensy corresponding to the pod (1 - 5)
+#define POD_ID 2
 
-#define SETUP_DELAY 1000
+
+             //ID of the teensy corresponding to the pod (1 - 5)
+#if POD_ID == 1
+#define SETUP_DELAY 3500
+#elif POD_ID == 2
+#define SETUP_DELAY 3000
+#elif POD_ID == 3
+#define SETUP_DELAY 2500
+#elif POD_ID == 4
+#define SETUP_DELAY 2000
+#elif POD_ID == 5
+#define SETUP_DELAY 1500
+#endif
 
 
 //--------------Parameters for LEDs
 #define SIZE_SCREEN 24          //Dimension of LED matrix
 #define NUM_LEDS_SCREEN 576     //Number of LEDs for 24x24 matrix
-#define NUM_LEDS_SYNAPSE 120    //CHANGE THIS ACCORDINGLY----------------------!!!!!!!!!!!!!!!
 
-
-//POD 1 - POD 2 = 91 LEDs
-//POD 1 - POD 3 = 160 LEDs
-
-//POD 3 - POD 4 = 99 LEDs
-//POD 3 - POD 2 = 112 LEDs
-
-//POD 5 - POD 4 = 115 LEDs
-//POD 5 - POD 2 = 156 LEDs
+#if POD_ID == 1
+  #define NUM_LEDS_SYNAPSE_A 91
+  #define NUM_LEDS_SYNAPSE_B 160
+#elif POD_ID == 2
+  #define NUM_LEDS_SYNAPSE_A 0
+  #define NUM_LEDS_SYNAPSE_B 0
+#elif POD_ID == 3
+  #define NUM_LEDS_SYNAPSE_A 112
+  #define NUM_LEDS_SYNAPSE_B 99
+#elif POD_ID == 4
+  #define NUM_LEDS_SYNAPSE_A 0
+  #define NUM_LEDS_SYNAPSE_B 0
+#elif POD_ID == 5
+  #define NUM_LEDS_SYNAPSE_A 156
+  #define NUM_LEDS_SYNAPSE_B 115
+#endif
 
 #define CHANNEL_A 7             //Data pin for Screen_A
 #define CHANNEL_B 8             //Data pin for Screen_B
@@ -33,25 +51,24 @@
 //#define FRAMERATE_VARIANCE 10
 //#define FRAMERATE_PULSES 1
 
-#define AUTOMATON_INTERVAL 400
+#define AUTOMATON_INTERVAL 600
 #define FADE_INTERVAL 1000/60
 #define BEAM_UPDATE_INTERVAL 1000/60
 #define BEAM_FREQUENCY_INTERVAL 800
 
 
 //------------Parameters for brightness shifting
-#define SHIFT_BRI 100  
-#define LOW_BRI 100
+#define SHIFT_BRI 80  
+#define LOW_BRI 90
 #define HIGH_BRI 255
 
 
 
 
-//------------Parameters for hue filtering
-int low_threshold = 200;
-int high_threshold = 300;
 
 
+
+int bri_level = 255;
 
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
@@ -66,11 +83,28 @@ int high_threshold = 300;
 
 
 
+
+#if POD_ID == 1
+  Adafruit_NeoPixel matrix_A = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_A, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel matrix_B = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_B, NEO_GRB + NEO_KHZ800);
+#elif POD_ID == 2
+  Adafruit_NeoPixel matrix_A = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_A, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel matrix_B = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_B, NEO_GRB + NEO_KHZ800);
+#elif POD_ID == 3
+  Adafruit_NeoPixel matrix_A = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_B, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel matrix_B = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_A, NEO_GRB + NEO_KHZ800);
+#elif POD_ID == 4
+  Adafruit_NeoPixel matrix_A = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_B, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel matrix_B = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_A, NEO_GRB + NEO_KHZ800);
+#elif POD_ID == 5
+  Adafruit_NeoPixel matrix_A = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_B, NEO_GRB + NEO_KHZ800);
+  Adafruit_NeoPixel matrix_B = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_A, NEO_GRB + NEO_KHZ800);
+#endif
+
 //--------------------------------------------Screens
-Adafruit_NeoPixel matrix_A = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_A, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel matrix_B = Adafruit_NeoPixel(NUM_LEDS_SCREEN, CHANNEL_B, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel synapse_A = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE, SYNAPSE_1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel synapse_B = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE, SYNAPSE_2, NEO_GRB + NEO_KHZ800);
+
+Adafruit_NeoPixel synapse_A = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE_A, SYNAPSE_1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel synapse_B = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE_B, SYNAPSE_2, NEO_GRB + NEO_KHZ800);
 
 
 
@@ -97,17 +131,6 @@ Screen screen_B = Screen(&fg_automaton_B, &bg_automaton_B, &grow_automaton_B, &s
 elapsedMillis sinceBeam;
 elapsedMillis sinceFadeUpdate;
 
-int filter_hue(int hue) {
-  int dif = high_threshold - low_threshold;
-  if (hue > low_threshold && hue < high_threshold) {
-    hue = (hue + dif) % 360;
-  }
-  return hue;
-}
-
-
-
-
 
 void updateScreensFade() {
   if (sinceFadeUpdate < FADE_INTERVAL) return;
@@ -117,7 +140,37 @@ void updateScreensFade() {
   screen_B.updateFade();
 }
 
+
+byte incomingByte;
+String readBuffer;  
+
+void readMessages(){
+  if(Serial1.available()){
+    while (Serial1.available()){
+      incomingByte = Serial1.read();
+      readBuffer += char(incomingByte);
+    }
+    Serial.println(readBuffer);
+    if (readBuffer.equals("incb")){
+      bri_level = constrain(bri_level + 50, LOW_BRI, HIGH_BRI);
+      matrix_A.setBrightness(bri_level);
+      matrix_B.setBrightness(bri_level);
+    } else if (readBuffer.equals("decb")){
+      bri_level = constrain(bri_level - 50, LOW_BRI, HIGH_BRI);
+      matrix_A.setBrightness(bri_level);
+      matrix_B.setBrightness(bri_level);
+      Serial.println("down");
+    }
+
+
+  }
+  readBuffer = "";
+}
+
+
 void renderInterrupt() {
+ 
+
   updateBeams();
   updateScreensFade();
 }
@@ -126,8 +179,13 @@ void renderInterrupt() {
 
 
 void setup() {
+  delay(SETUP_DELAY);
   rtc_set(0);
-  randomSeed(analogRead(17));
+  randomSeed(analogRead(17)+analogRead(16));
+
+
+  Serial.begin(9600);
+  Serial1.begin(9600);
 
   screen_A.init_screen();
   screen_B.init_screen();
@@ -139,12 +197,13 @@ void setup() {
   sinceBeamUpdate = 0;
   sinceFadeUpdate = 0;
 
-  delay(SETUP_DELAY);
+  
 }
 
 
 
 void loop() {
+  readMessages();
   if(sinceBeam > BEAM_FREQUENCY_INTERVAL){
     sinceBeam = 0;
     newBeam(&synapse_B, random(0,2), Color(random(0,360), random(80, 101), 100, HSB_MODE),random(8,40),random(2000,6000));
@@ -153,6 +212,6 @@ void loop() {
 
   screen_A.iterate_animation();
   screen_B.iterate_animation();
-
+ 
   renderInterrupt();
 }

@@ -1,4 +1,4 @@
 {
-    "port": "COM8",
+    "port": "COM12",
     "programmer": "ArduinoISP"
 }
