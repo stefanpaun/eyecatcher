@@ -7,7 +7,9 @@
 #define AUTOMATON_INTERVAL 600
 #define FADE_INTERVAL 1000/20
 #define BEAM_UPDATE_INTERVAL 1000/40
+#define CIRCLE_UPDATE_INTERVAL 1000/40
 #define BEAM_FREQUENCY_INTERVAL 1500
+#define CIRCLE_FREQUENCY_INTERVAL 200
 #define RATIO_GROWTH 1  
 
 
@@ -79,6 +81,8 @@ bool isRegularAnimation;
 #include "Color.h"
 #include "Beam.h"
 #include "Screen.h"
+#include "CircleController.h"
+#include "circles.h"
 
 
 
@@ -129,6 +133,7 @@ Screen screen_B; //= Screen(&fg_automaton_B, &bg_automaton_B, &grow_automaton_B,
 
 
 elapsedMillis sinceBeam;
+elapsedMillis sinceCircle;
 
 
 bool screenFadeUpdateSwitcher = false;
@@ -199,7 +204,6 @@ void regular_setup(){
 
 
 void regular_animation(){
-  if (!isRegularAnimation) return;
   if(sinceBeam > BEAM_FREQUENCY_INTERVAL){
     sinceBeam = 0;
     int rand1 = random(0, 2);
@@ -260,35 +264,31 @@ void renderInterruptCeremony(int rate) {
   updateScreensFadeCeremony(400);
 }
 
-int automatonRate = 700;
+
+
+
 void ceremony_animation(){
+	if (sinceCircle > CIRCLE_FREQUENCY_INTERVAL) {
+		sinceCircle = 0;
+		newCircle(&matrix_A, Color(random(0, 360), 100, 100, HSB_MODE), 300);
+		newCircle(&matrix_B, Color(random(0, 360), 100, 100, HSB_MODE), 300);
+	}
 
-  if (isRegularAnimation) return;
-    
-  if (implosionTimer > 2500){
-    implosionDone = true;
+	if (sinceBeam > CIRCLE_FREQUENCY_INTERVAL) {
+		sinceBeam = 0;
 
-  }
+		Color c = Color(random(0, 360), 100, 100, HSB_MODE);
+		newBeam(&synapse_A, true, c, NUM_LEDS_SYNAPSE_A*0.75, 300);
+		newBeam(&synapse_A, false, c, NUM_LEDS_SYNAPSE_A*0.75, 300);
 
-  if (!implosionDone){
-  screen_A.iterate_animation();
-  screen_B.iterate_animation();
- 
-  renderInterruptCeremony(700);
-  } else {
-    if(automatonReinitializeCeremony){
-        screen_A.regular_screen_animation();
-        screen_A.regular_screen_animation();
-        automatonReinitializeCeremony = false;
-      }
-    screen_A.iterate_animation();
-    screen_B.iterate_animation();
-    automatonRate = min((automatonRate - 50), 0);
-    renderInterruptCeremony(automatonRate);
-    if (automatonRate == 0){
-      isRegularAnimation = true;
-    }  
-    }
+		c = Color(random(0, 360), 100, 100, HSB_MODE);
+		newBeam(&synapse_B, true, c, NUM_LEDS_SYNAPSE_B*0.75, 300);
+		newBeam(&synapse_B, false, c, NUM_LEDS_SYNAPSE_B*0.75, 300);
+	}
+
+
+	updateCircles();
+	updateBeams();
 }
 
 
@@ -329,8 +329,9 @@ void setup() {
 
 void loop() {
   readMessages();
-  regular_animation();
-  ceremony_animation();
+
+  if (isRegularAnimation) regular_animation();
+  else ceremony_animation();
 }
 
 
