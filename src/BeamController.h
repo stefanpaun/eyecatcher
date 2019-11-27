@@ -18,6 +18,7 @@ bool newBeam(Adafruit_NeoPixel* _strip, bool _direction, Color _color, float _le
 
 void updateBeams() {
   if ((int)sinceBeamUpdate < BEAM_UPDATE_INTERVAL) return;
+  unsigned int startTime = rtcMillis();
   sinceBeamUpdate = 0;
 
   synapse_A.clear();
@@ -37,6 +38,9 @@ void updateBeams() {
 
   synapse_A.show();
   synapse_B.show();
+
+ // Serial.print("Beam FrameTime: ");
+  //Serial.println(rtcMillis()-startTime);
 }
 
 struct RGB32 {

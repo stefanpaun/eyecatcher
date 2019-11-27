@@ -9,7 +9,8 @@
         "lib/Time/**",
         "lib/TimeAlarms/**",
         "lib/TimerOne/**",
-        "lib/SoftwareSerial/**"
+        "lib/SoftwareSerial/**",
+        "lib/EEPROM/**"
       ],
       "forcedInclude": [],
       "defines": [

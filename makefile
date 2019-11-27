@@ -21,7 +21,7 @@ LIBS_SHARED_BASE := C:\Users\stefa\Documents\Arduino\libraries
 LIBS_SHARED      := Colore 
 
 LIBS_LOCAL_BASE  := lib
-LIBS_LOCAL       := Adafruit_NeoPixel Time TimeAlarms TimerOne SoftwareSerial
+LIBS_LOCAL       := Adafruit_NeoPixel Time TimeAlarms TimerOne SoftwareSerial EEPROM
 
 CORE_BASE        := core
 GCC_BASE         := C:\PROGRA~2\Arduino\hardware\tools\arm\bin

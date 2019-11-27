@@ -41,13 +41,14 @@ class Screen {
 		{8, 1, 1, 0, 0, 3}
 	};
 
-	AutomatonValues bri_automatons[6] = {
+	AutomatonValues bri_automatons[7] = {
 		{7, 7, 2, 0, 0, 50},    
 		{7, 7, 3, 0, 0, 50},	
 		{5, 5, 2, 0, 0, 50},    
 		{5, 5, 3, 0, 0, 50},
 		{6, 6, 4, 0, 0, 50},
-		{3, 1, 3, 0, 0, 50}			
+		{6, 1, 6, 0, 0, 50},
+		{9, 1, 9, 0, 0, 50}			
 	};
 
 	Seed hue_seeds[1] = {
@@ -75,11 +76,15 @@ private:
 	int ratio = 0;
 	float fadeFactor = 0;
 	unsigned long fadeStart = 0;
-	int bottom_hue_threshold;
-	int hue_difference;
+
+
+	elapsedMillis sinceFadeUpdate;
+	
+
 
 public:
-
+	int bottom_hue_threshold;
+	int hue_difference;
 	Screen(Automaton * fg_automaton, Automaton * bg_automaton, Automaton * grow_automaton, Automaton * sat_automaton, Adafruit_NeoPixel * screen, Cellmask (* mask)[SIZE_SCREEN][SIZE_SCREEN], boolean (* bg_mask)[SIZE_SCREEN][SIZE_SCREEN]) {
 		_bg_automaton = bg_automaton;
 		_fg_automaton = fg_automaton;
@@ -90,8 +95,11 @@ public:
 		_bg_mask = bg_mask;
 		newFrameReady = false;
 		bottom_hue_threshold = random(0, 360);
-		hue_difference = random(0, 360 );
+		hue_difference = random(60, 260);
+		sinceFadeUpdate = 0;
 	}
+
+	Screen(){};
 
 	void define_automaton_ceremony(){
 		initialize_automaton(_fg_automaton, &hue_automatons[6], false);
@@ -101,17 +109,25 @@ public:
 	}
 
 	void define_automaton(){
+		
 		initialize_automaton(_fg_automaton, &hue_automatons[random(0, 8)], false);
 		initialize_automaton(_bg_automaton, &sat_automatons, true);
-		initialize_automaton(_grow_automaton, &bri_automatons[random(0, 6)], true);
+		initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
 		initialize_automaton(_sat_automaton, &sat_automatons, true);
 	}
 
 	void define_seeds(){
 		initialize_seed(_fg_automaton, hue_seeds[0]);
 		initialize_seed(_bg_automaton, hue_seeds[0]);
-		initialize_seed(_grow_automaton, bri_seeds[1]);
+		initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
 		initialize_seed(_sat_automaton, bri_seeds[random(0, 5)]);
+	}
+
+	void define_seeds_ceremony(){
+		initialize_seed(_fg_automaton, hue_seeds[0]);
+		initialize_seed(_bg_automaton, hue_seeds[0]);
+		initialize_seed(_grow_automaton, bri_seeds[1]);
+		initialize_seed(_sat_automaton, hue_seeds[0]);
 	}
 
 	void initialize_automaton(Automaton * automaton, AutomatonValues * val, bool bg){
@@ -144,10 +160,17 @@ public:
 	void init_screen() {	
 		_screen->begin();
 		_screen->setBrightness(HIGH_BRI);
+	}
+
+	void regular_screen_animation(){
 		define_automaton();
 		define_seeds();
 	}
 
+	void special_screen_animation(){
+		define_automaton_ceremony();
+		define_seeds_ceremony();
+	}
 
 	ColorMatrix* prev_colors = new ColorMatrix;
 	ColorMatrix* currGoal_colors = new ColorMatrix;
@@ -172,23 +195,19 @@ public:
 		int result = map(val, 0, 360,  top, bottom);
 		return result;
 	}
+
 	void gen_color_matrix() {
 		int hue = 0, sat = 0, bri = 0;
 		for (int x = 0; x < SIZE_SCREEN; x++) {
 			for (int y = 0; y < SIZE_SCREEN; y++) {
 				bri = (*_grow_automaton).brightnessMap(x, y);
-				sat = (*_sat_automaton).saturationMap(x, y);
-				
+				sat = (*_sat_automaton).saturationMap(x, y);	
 				if ((*_fg_automaton).can_color(x, y)) {
 					hue = (*_fg_automaton).colorMap(x, y);
 				} else {
 					hue = (*_bg_automaton).colorMap(x, y);
-
-
 				}
 				
-
-				//hue = (hue + 100)%360;
 				hue = filter_hue(hue);
 				bri = shift_bri(bri);
 				
@@ -196,7 +215,6 @@ public:
 			}
 		}
 	}
-
 
 	void interpolate_colors() {
 		int r = 0, g = 0, b = 0;
@@ -210,19 +228,26 @@ public:
 		}
 	}
 
-	void updateFade() {
+	bool updateFade(int id) {
+		if (sinceFadeUpdate < FADE_INTERVAL) return false;
+		sinceFadeUpdate = 0;
 		if (fadeFactor >= 1) {
-      //Serial.println("end of fade");
+      		
 			if (newFrameReady) {
-        //Serial.println("setup next fade");
+				Serial.print(id);
+        		Serial.println("setup next fade");
 				ColorMatrix* temp = prev_colors;
 				prev_colors = currGoal_colors;
 				currGoal_colors = nextGoal_colors;
 				nextGoal_colors = temp;
 				fadeStart = rtcMillis();
-        newFrameReady = false;
+        		newFrameReady = false;
 			}
-			else return;
+			else{
+				Serial.print(id);
+				Serial.println("No next frame ready!!!");
+				return true;
+			}
 		}
 
 		fadeFactor = (float)(rtcMillis() - fadeStart) / AUTOMATON_INTERVAL;
@@ -230,18 +255,48 @@ public:
 
 		interpolate_colors();
 		_screen->show();
+		return true;
 	}
 
-
-	
-	void iterate_animation() {
-		if (allZero(_grow_automaton)){
-			initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
-			Serial.println("Restart");
+	bool updateFadeCeremony(int id, int rate) {
+		if (sinceFadeUpdate < FADE_INTERVAL) return false;
+		sinceFadeUpdate = 0;
+		if (fadeFactor >= 1) {
+      		
+			if (newFrameReady) {
+				Serial.print(id);
+        		Serial.println("setup next fade");
+				ColorMatrix* temp = prev_colors;
+				prev_colors = currGoal_colors;
+				currGoal_colors = nextGoal_colors;
+				nextGoal_colors = temp;
+				fadeStart = rtcMillis();
+        		newFrameReady = false;
+			}
+			else{
+				Serial.print(id);
+				Serial.println("No next frame ready!!!");
+				return true;
+			}
 		}
 
-		if (allZero(_sat_automaton)){
-			initialize_seed(_sat_automaton, bri_seeds[random(0, 5)]);
+		fadeFactor = (float)(rtcMillis() - fadeStart) / (AUTOMATON_INTERVAL-rate);
+		fadeFactor = min(fadeFactor, 1);
+
+		interpolate_colors();
+		_screen->show();
+		return true;
+	}
+
+	void iterate_animation(){
+		if (allZero(_grow_automaton)){
+			initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
+			initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
+		}
+
+		if (allZero(_fg_automaton)){
+			initialize_automaton(_fg_automaton, &hue_automatons[random(0, 8)], false);
+			initialize_seed(_fg_automaton, hue_seeds[0]);
 		}
 		if (newFrameReady) return;
 		(*_fg_automaton).iterate();
@@ -253,12 +308,34 @@ public:
 			ratio = 0;
 		}
 
-		
+		gen_color_matrix();
+		newFrameReady = true;
+	}
+
+
+	void iterate_animation_ceremony(){
+		if (allZero(_grow_automaton)){
+
+			initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
+			initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
+		}
+
+		if (allZero(_fg_automaton)){
+			initialize_automaton(_fg_automaton, &hue_automatons[random(0, 8)], false);
+			initialize_seed(_fg_automaton, hue_seeds[0]);
+		}
+		if (newFrameReady) return;
+		(*_fg_automaton).iterate();
+		(*_bg_automaton).iterate();
+		ratio++;
+		if (ratio == RATIO_GROWTH){
+			(*_grow_automaton).iterate_growth();
+			(*_sat_automaton).iterate_growth();
+			ratio = 0;
+		}
 
 		gen_color_matrix();
-
 		newFrameReady = true;
-    //Serial.println("newFrameReady");
 	}
 
 	bool allZero(Automaton * automaton){

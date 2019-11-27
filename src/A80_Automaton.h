@@ -51,7 +51,7 @@ class Automaton {
     void iterate(){
       int neighbours[8] = {0, 0, 0, 0, 0, 0, 0, 0};
       for (int x = 0; x < SIZE_SCREEN; x++){
-         renderInterrupt();
+        renderInterrupt();
         for (int y = 0; y < SIZE_SCREEN; y++){
           int index = 0;
           if (can_color(x, y)) {
@@ -135,7 +135,7 @@ class Automaton {
   int colorMap(int x, int y){
     //float val = value * 0.001; ///rework this
     //int b = (val >= 1.0 ? 255 : (val <= 0.0 ? 0 : (int)floor(val * 256.0)));
-    return cells[x][y]*10 % 360;
+    return cells[x][y]*5 % 360;
   }
 
   int brightnessMap(int x, int y){

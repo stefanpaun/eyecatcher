@@ -8,5 +8,7 @@ C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/
  core/Arduino.h core/IntervalTimer.h \
  lib/Adafruit_NeoPixel/Adafruit_NeoPixel.h lib/Time/Time.h \
  lib/Time/TimeLib.h lib/TimeAlarms/TimeAlarms.h lib/Time/TimeLib.h \
- src/A80_Automaton.h src/A50_Cellmask.h src/A51_Masks.h src/Color.h \
- src/Beam.h src/Screen.h src/BeamController.h
+ lib/EEPROM/EEPROM.h core/avr/eeprom.h core/avr_functions.h core/avr/io.h \
+ core/avr/../avr_emulation.h src/A80_Automaton.h src/A50_Cellmask.h \
+ src/A51_Masks.h src/Color.h src/Beam.h src/Screen.h \
+ src/OpeningCeremony.h src/BeamController.h
