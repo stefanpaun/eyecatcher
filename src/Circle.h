@@ -1,11 +1,8 @@
 // circles.h
 
-#ifndef _CIRCLES_h
-#define _CIRCLES_h
-
 #include "Vector.h"
 
-void addPixelColor(Adafruit_NeoPixel* strip, int pixel, Color c);
+//void addPixelColor(Adafruit_NeoPixel* strip, int pixel, Color c);
 
 
 class Circle {
@@ -13,7 +10,7 @@ class Circle {
 public:
 	boolean active;
 	Adafruit_NeoPixel* strip;
-
+    Cellmask (* mask)[SIZE_SCREEN][SIZE_SCREEN];
 	Vector pos;
 	float size, BSize, ESize;
 	Color color;
@@ -24,7 +21,7 @@ public:
 
 	
 	Circle() { active = false; };
-	void begin(Adafruit_NeoPixel * _strip, float x, float y, Color _color, float _borderSize, float _BSize, float _ESize, int _duration) {
+	void begin(Adafruit_NeoPixel * _strip, float x, float y, Color _color, float _borderSize, float _BSize, float _ESize, int _duration, Cellmask (* _mask)[SIZE_SCREEN][SIZE_SCREEN]) {
 		active = true;
 		strip = _strip;
 		pos.x = x;
@@ -34,6 +31,7 @@ public:
 		BSize = _BSize;
 		ESize = _ESize;
 		duration = _duration;
+        mask = _mask;
 		startTime = rtcMillis();
 	}
 
@@ -56,6 +54,7 @@ public:
 		int y1 = pos.y - size / 2;
 		int y2 = pos.y + size / 2;
 
+
 		for (int x = x1; x <= x2; x++) {
 			for (int y = y1; y <= y2; y++) {
 
@@ -67,9 +66,11 @@ public:
 				float dist = sqrt(Dx * Dx + Dy * Dy);
 
 
-				float b = 1-max(abs((size / 2) - dist) / borderSize,1);
+				float b = 1-min(abs((size / 2.) - dist) / borderSize,1);
 
-				Color c = color;
+                //float b = dist<size/2 ? 1 : 0;
+
+				Color c = Color(mask[x][y]->getHue(), 100, 100, HSB_MODE);
 				c.multiply(b);
 				addPixelColor(strip, ledID, c);
 			}
@@ -78,8 +79,3 @@ public:
 	
 
 };
-
-
-
-#endif
-

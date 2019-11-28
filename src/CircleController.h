@@ -1,15 +1,16 @@
 #define CIRCLE_AM 10
 
+
 Circle circles[CIRCLE_AM];
 
 elapsedMillis sinceCircleUpdate;
 
 
 
-bool newCircle(Adafruit_NeoPixel* _strip, Color _c, int _duration) {
+bool newCircle(Adafruit_NeoPixel* _strip, Color _c, int _duration, Cellmask (*_mask)[SIZE_SCREEN][SIZE_SCREEN]) {
 	for (int i = 0; i < CIRCLE_AM; i++) {
 		if (!circles[i].active) {
-			circles[i].begin(_strip, SIZE_SCREEN / 2, SIZE_SCREEN / 2, _c, 3, SIZE_SCREEN, -3, _duration);
+			circles[i].begin(_strip, SIZE_SCREEN / 2, SIZE_SCREEN / 2, _c, 2, 35, -3, _duration, _mask);
 			return true;
 		}
 	}
@@ -18,7 +19,6 @@ bool newCircle(Adafruit_NeoPixel* _strip, Color _c, int _duration) {
 
 void updateCircles() {
 	if ((int)sinceCircleUpdate < CIRCLE_UPDATE_INTERVAL) return;
-	unsigned int startTime = rtcMillis();
 	sinceCircleUpdate = 0;
 
 	matrix_A.clear();

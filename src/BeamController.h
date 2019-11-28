@@ -38,24 +38,10 @@ void updateBeams() {
 
   synapse_A.show();
   synapse_B.show();
+  
 
  // Serial.print("Beam FrameTime: ");
   //Serial.println(rtcMillis()-startTime);
 }
 
-struct RGB32 {
-  byte b;
-  byte g;
-  byte r;
-  byte a;
-};
 
-void addPixelColor(Adafruit_NeoPixel* strip, int pixel, Color c) {
-  int colInt = strip->getPixelColor(pixel);
-  RGB32* getCol = (RGB32*)&colInt;
-  getCol->r = constrain(getCol->r + c.red(), 0, 255);
-  getCol->g = constrain(getCol->g + c.green(), 0, 255);
-  getCol->b = constrain(getCol->b + c.blue(), 0, 255);
-
-  strip->setPixelColor(pixel, *(int*)getCol);
-}

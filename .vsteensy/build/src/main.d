@@ -10,5 +10,6 @@ C:\Users\stefa\Desktop\DesignLab\Eyecatcher\EyecatcherAnimation\.vsteensy\build/
  lib/Time/TimeLib.h lib/TimeAlarms/TimeAlarms.h lib/Time/TimeLib.h \
  lib/EEPROM/EEPROM.h core/avr/eeprom.h core/avr_functions.h core/avr/io.h \
  core/avr/../avr_emulation.h src/A80_Automaton.h src/A50_Cellmask.h \
- src/A51_Masks.h src/Color.h src/Beam.h src/Screen.h \
- src/OpeningCeremony.h src/BeamController.h
+ src/A51_Masks.h src/Color.h src/Beam.h src/Screen.h src/Circle.h \
+ src/Vector.h core/arduino.h src/BeamController.h src/CircleController.h \
+ src/OpeningCeremony.h

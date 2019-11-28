@@ -66,11 +66,11 @@ void draw() {
 void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTrailDecay, boolean meteorRandomDecay, int SpeedDelay) {  
   setAll(0,0,0);
  
-  for(int i = 0; i < strip->numPixels*2; i++) {
+  for(int i = 0; i < strip->numPixels()*2; i++) {
    
    
     // fade brightness all LEDs one step
-    for(int j=0; j<strip->numPixels; j++) {
+    for(int j=0; j<strip->numPixels(); j++) {
       if( (!meteorRandomDecay) || (random(10)>5) ) {
         fadeToBlack(j, meteorTrailDecay );        
       }
@@ -78,7 +78,7 @@ void meteorRain(byte red, byte green, byte blue, byte meteorSize, byte meteorTra
    
     // draw meteor
     for(int j = 0; j < meteorSize; j++) {
-      if( ( i-j <strip->numPixels) && (i-j>=0) ) {
+      if( ( i-j <strip->numPixels()) && (i-j>=0) ) {
         strip->setPixelColor(i-j, red, green, blue);
       }
     }
@@ -107,7 +107,7 @@ void fadeToBlack(int ledNo, byte fadeValue) {
 
 
 void setAll(byte red, byte green, byte blue) {
-  for(int i = 0; i < strip->numPixels; i++ ) {
+  for(int i = 0; i < strip->numPixels(); i++ ) {
     strip->setPixelColor(i, red, green, blue);
   }
   strip->show();

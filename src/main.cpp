@@ -7,9 +7,11 @@
 #define AUTOMATON_INTERVAL 600
 #define FADE_INTERVAL 1000/20
 #define BEAM_UPDATE_INTERVAL 1000/40
-#define CIRCLE_UPDATE_INTERVAL 1000/40
-#define BEAM_FREQUENCY_INTERVAL 1500
-#define CIRCLE_FREQUENCY_INTERVAL 200
+#define CIRCLE_UPDATE_INTERVAL 1000/60
+
+
+#define BEAM_FREQUENCY_INTERVAL 800
+#define CIRCLE_FREQUENCY_INTERVAL 2000
 #define RATIO_GROWTH 1  
 
 
@@ -81,8 +83,8 @@ bool isRegularAnimation;
 #include "Color.h"
 #include "Beam.h"
 #include "Screen.h"
-#include "CircleController.h"
-#include "circles.h"
+#include "Circle.h"
+
 
 
 
@@ -111,7 +113,10 @@ Adafruit_NeoPixel synapse_B = Adafruit_NeoPixel(NUM_LEDS_SYNAPSE_B, SYNAPSE_2, N
 
 
 
+
+
 #include "BeamController.h" 
+#include "CircleController.h"
 #include "OpeningCeremony.h"
 
 //Automaton values:  target, reward, penalty, floorInit, minInit, maxInit
@@ -197,28 +202,31 @@ void updateRandomSeed(){
   randomSeed(randomSeedN);
 }
 
+elapsedMillis sinceAutomatonInit;
+
 void regular_setup(){
-  screen_A.regular_screen_animation();
-  screen_B.regular_screen_animation();
+  screen_A.init_screen();
+  screen_B.init_screen();
+  sinceAutomatonInit = 0;
 }
 
 
 void regular_animation(){
-  if(sinceBeam > BEAM_FREQUENCY_INTERVAL){
+  if(sinceBeam > BEAM_FREQUENCY_INTERVAL && sinceAutomatonInit > 2000){
     sinceBeam = 0;
     int rand1 = random(0, 2);
     int rand2 = random(0, 2);
     Color color1, color2;
     if (rand1 == 0){
-      color1 = Color(random(screen_A.bottom_hue_threshold, screen_A.bottom_hue_threshold + screen_A.hue_difference), random(75, 101), random(85, 100), HSB_MODE);
+      color1 = Color(random(screen_A.bottom_hue_threshold, screen_A.bottom_hue_threshold + screen_A.hue_difference), random(50, 75), random(55, 80), HSB_MODE);
     } else {
-      color1 = Color(random(0,360), random(75, 101), 100, HSB_MODE);
+      color1 = Color(random(0,260), random(50, 75), random(55, 80), HSB_MODE);
     }
 
     if (rand2 == 0){
-      color2 = Color(random(screen_B.bottom_hue_threshold, screen_B.bottom_hue_threshold + screen_B.hue_difference), random(75, 101), random(85, 100), HSB_MODE);
+      color2 = Color(random(screen_B.bottom_hue_threshold, screen_B.bottom_hue_threshold + screen_B.hue_difference), random(50, 75), random(55, 80), HSB_MODE);
     } else {
-      color2 = Color(random(0,360), random(75, 101), 100, HSB_MODE);
+      color2 = Color(random(0,260), random(50, 75), random(55, 80), HSB_MODE);
     }
     newBeam(&synapse_A, rand1, color1, random(3, 30),random(1000,6000));
     newBeam(&synapse_B, rand2, color2, random(3, 30),random(1000,6000));
@@ -244,51 +252,54 @@ void renderInterrupt() {
   updateScreensFade();
 }
 
-void ceremony_setup(){
-  screen_A.special_screen_animation();
-  screen_B.special_screen_animation();
-  implosionTimer = 0;
-}
 
-void updateScreensFadeCeremony(int rate) {
-  if(screenFadeUpdateSwitcher){
-    if(screen_A.updateFadeCeremony(0, rate)) screenFadeUpdateSwitcher = !screenFadeUpdateSwitcher;
-  }else{
-    if(screen_B.updateFadeCeremony(1, rate))  screenFadeUpdateSwitcher = !screenFadeUpdateSwitcher;
-  }
-}
-
-
-void renderInterruptCeremony(int rate) {
-  updateBeams();
-  updateScreensFadeCeremony(400);
-}
-
-
-
-
+boolean didPulse = false;
+boolean didIntro = false;
+boolean startAutomaton = false;
+elapsedMillis sinceIntro = 0;
+int freq_offset = 500;
+int speed_offset = 0;
 void ceremony_animation(){
-	if (sinceCircle > CIRCLE_FREQUENCY_INTERVAL) {
+
+  	if (!didPulse && !didIntro) {
+    Color c = Color(195, 80, 100, HSB_MODE);
+		newBeam(&synapse_A, true, c, NUM_LEDS_SYNAPSE_A*1.5, 2000);
+		newBeam(&synapse_A, false, c, NUM_LEDS_SYNAPSE_A*1.5, 2000);
+		newBeam(&synapse_B, true, c, NUM_LEDS_SYNAPSE_B*1.5, 2000);
+		newBeam(&synapse_B, false, c, NUM_LEDS_SYNAPSE_B*1.5, 2000);
 		sinceCircle = 0;
-		newCircle(&matrix_A, Color(random(0, 360), 100, 100, HSB_MODE), 300);
-		newCircle(&matrix_B, Color(random(0, 360), 100, 100, HSB_MODE), 300);
+
+    didPulse = true;
 	}
 
-	if (sinceBeam > CIRCLE_FREQUENCY_INTERVAL) {
-		sinceBeam = 0;
-
-		Color c = Color(random(0, 360), 100, 100, HSB_MODE);
-		newBeam(&synapse_A, true, c, NUM_LEDS_SYNAPSE_A*0.75, 300);
-		newBeam(&synapse_A, false, c, NUM_LEDS_SYNAPSE_A*0.75, 300);
-
-		c = Color(random(0, 360), 100, 100, HSB_MODE);
-		newBeam(&synapse_B, true, c, NUM_LEDS_SYNAPSE_B*0.75, 300);
-		newBeam(&synapse_B, false, c, NUM_LEDS_SYNAPSE_B*0.75, 300);
+  
+	if (sinceCircle > 1500 && didPulse && !didIntro) {
+    newCircle(&matrix_A, Color(random(0, 360), 100, 100, HSB_MODE), 1000, &mask_A);
+		newCircle(&matrix_B, Color(random(0, 360), 100, 100, HSB_MODE), 1000, &mask_B);
+    didIntro = true;
+    sinceIntro = 0;
 	}
 
 
+
+  updateBeams();
 	updateCircles();
-	updateBeams();
+
+  if (sinceIntro > 3500 && didIntro){
+    Color c = Color(195, 80, 100, HSB_MODE);
+    if(sinceBeam > BEAM_FREQUENCY_INTERVAL-freq_offset){
+      sinceBeam = 0;
+      newBeam(&synapse_A, random(0, 2), c, random (2, 10), random(400+speed_offset, 900+speed_offset));
+      newBeam(&synapse_B, random(0, 2), c, random (2, 10), random(400+speed_offset, 900+speed_offset));
+      freq_offset = max(freq_offset - 50, 0); 
+      speed_offset = constrain(speed_offset + 200, 0, 800);
+    }
+  }
+
+  if (sinceIntro > 8000 && didIntro){
+    regular_setup();
+    isRegularAnimation = true;
+  }
 }
 
 
@@ -308,22 +319,23 @@ void setup() {
   screen_A = Screen(&fg_automaton_A, &bg_automaton_A, &grow_automaton_A, &sat_automaton_A, &matrix_A, &mask_A, &background_A);
   screen_B = Screen(&fg_automaton_B, &bg_automaton_B, &grow_automaton_B, &sat_automaton_B, &matrix_B, &mask_B, &background_B);
 
-  screen_A.init_screen();
-  screen_B.init_screen();
+  
 
   synapse_A.begin();
   synapse_B.begin();
-  
 
+  matrix_A.begin();
+  matrix_B.begin();
+  
+ 
   if(isRegularAnimation){
     regular_setup();
-  } else {
-    ceremony_setup();
-  }
+  } 
 
 
   sinceBeam = 0;
   sinceBeamUpdate = 0;
+  sinceCircleUpdate = 0;
 }
 
 

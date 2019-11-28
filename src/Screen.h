@@ -59,7 +59,6 @@ class Screen {
 		{IMPLOSION, 1, false},
 		{SQUARE, random(2, 3), false},
 		{CIRCLE, random(2, 4), false},
-		{MULTIPLE, random(2, 5), false},
 		{LINE, random(3, 10), false}
 	};
 	
@@ -119,8 +118,8 @@ public:
 	void define_seeds(){
 		initialize_seed(_fg_automaton, hue_seeds[0]);
 		initialize_seed(_bg_automaton, hue_seeds[0]);
-		initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
-		initialize_seed(_sat_automaton, bri_seeds[random(0, 5)]);
+		initialize_seed(_grow_automaton, bri_seeds[random(0, 4)]);
+		initialize_seed(_sat_automaton, bri_seeds[random(0, 4)]);
 	}
 
 	void define_seeds_ceremony(){
@@ -158,19 +157,21 @@ public:
 	}
 
 	void init_screen() {	
-		_screen->begin();
+		//_screen->begin();
 		_screen->setBrightness(HIGH_BRI);
-	}
-
-	void regular_screen_animation(){
 		define_automaton();
 		define_seeds();
 	}
 
-	void special_screen_animation(){
-		define_automaton_ceremony();
-		define_seeds_ceremony();
-	}
+	// void regular_screen_animation(){
+	// 	define_automaton();
+	// 	define_seeds();
+	// }
+
+	// void special_screen_animation(){
+	// 	define_automaton_ceremony();
+	// 	define_seeds_ceremony();
+	// }
 
 	ColorMatrix* prev_colors = new ColorMatrix;
 	ColorMatrix* currGoal_colors = new ColorMatrix;
@@ -258,64 +259,9 @@ public:
 		return true;
 	}
 
-	bool updateFadeCeremony(int id, int rate) {
-		if (sinceFadeUpdate < FADE_INTERVAL) return false;
-		sinceFadeUpdate = 0;
-		if (fadeFactor >= 1) {
-      		
-			if (newFrameReady) {
-				Serial.print(id);
-        		Serial.println("setup next fade");
-				ColorMatrix* temp = prev_colors;
-				prev_colors = currGoal_colors;
-				currGoal_colors = nextGoal_colors;
-				nextGoal_colors = temp;
-				fadeStart = rtcMillis();
-        		newFrameReady = false;
-			}
-			else{
-				Serial.print(id);
-				Serial.println("No next frame ready!!!");
-				return true;
-			}
-		}
-
-		fadeFactor = (float)(rtcMillis() - fadeStart) / (AUTOMATON_INTERVAL-rate);
-		fadeFactor = min(fadeFactor, 1);
-
-		interpolate_colors();
-		_screen->show();
-		return true;
-	}
 
 	void iterate_animation(){
 		if (allZero(_grow_automaton)){
-			initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
-			initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
-		}
-
-		if (allZero(_fg_automaton)){
-			initialize_automaton(_fg_automaton, &hue_automatons[random(0, 8)], false);
-			initialize_seed(_fg_automaton, hue_seeds[0]);
-		}
-		if (newFrameReady) return;
-		(*_fg_automaton).iterate();
-		(*_bg_automaton).iterate();
-		ratio++;
-		if (ratio == RATIO_GROWTH){
-			(*_grow_automaton).iterate_growth();
-			(*_sat_automaton).iterate_growth();
-			ratio = 0;
-		}
-
-		gen_color_matrix();
-		newFrameReady = true;
-	}
-
-
-	void iterate_animation_ceremony(){
-		if (allZero(_grow_automaton)){
-
 			initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
 			initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
 		}
