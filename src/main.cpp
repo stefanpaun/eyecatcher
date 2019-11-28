@@ -176,7 +176,7 @@ void readMessages(){
 void readAnimationType(){
   String animReadBuffer = "";
   unsigned int readStartTime = rtcMillis();
-  isRegularAnimation = true;
+  isRegularAnimation = false;
   while(rtcMillis()<readStartTime+5000){
       while (Serial1.available()){
         char inChar = Serial1.read();
@@ -262,18 +262,18 @@ int speed_offset = 0;
 void ceremony_animation(){
 
   	if (!didPulse && !didIntro) {
-    Color c = Color(195, 80, 100, HSB_MODE);
-		newBeam(&synapse_A, true, c, NUM_LEDS_SYNAPSE_A*1.5, 2000);
-		newBeam(&synapse_A, false, c, NUM_LEDS_SYNAPSE_A*1.5, 2000);
-		newBeam(&synapse_B, true, c, NUM_LEDS_SYNAPSE_B*1.5, 2000);
-		newBeam(&synapse_B, false, c, NUM_LEDS_SYNAPSE_B*1.5, 2000);
+    Color c = Color(204, 57, 90, HSB_MODE);
+		newBeam(&synapse_A, true, c, NUM_LEDS_SYNAPSE_A*1.5, 7 *1000);
+		newBeam(&synapse_A, false, c, NUM_LEDS_SYNAPSE_A*1.5, 7* 1000);
+		newBeam(&synapse_B, true, c, NUM_LEDS_SYNAPSE_B*1.5, 7 * 1000);
+		newBeam(&synapse_B, false, c, NUM_LEDS_SYNAPSE_B*1.5, 7 * 1000);
 		sinceCircle = 0;
 
     didPulse = true;
 	}
 
   
-	if (sinceCircle > 1500 && didPulse && !didIntro) {
+	if (sinceCircle > 6000 && didPulse && !didIntro) {
     newCircle(&matrix_A, Color(random(0, 360), 100, 100, HSB_MODE), 1000, &mask_A);
 		newCircle(&matrix_B, Color(random(0, 360), 100, 100, HSB_MODE), 1000, &mask_B);
     didIntro = true;
@@ -285,8 +285,8 @@ void ceremony_animation(){
   updateBeams();
 	updateCircles();
 
-  if (sinceIntro > 3500 && didIntro){
-    Color c = Color(195, 80, 100, HSB_MODE);
+  if (sinceIntro > 0 && didIntro){
+    Color c = Color(204, 57, 90, HSB_MODE);
     if(sinceBeam > BEAM_FREQUENCY_INTERVAL-freq_offset){
       sinceBeam = 0;
       newBeam(&synapse_A, random(0, 2), c, random (2, 10), random(400+speed_offset, 900+speed_offset));
@@ -296,7 +296,7 @@ void ceremony_animation(){
     }
   }
 
-  if (sinceIntro > 8000 && didIntro){
+  if (sinceIntro > 3500 && didIntro){
     regular_setup();
     isRegularAnimation = true;
   }

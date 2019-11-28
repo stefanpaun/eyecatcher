@@ -261,6 +261,9 @@ public:
 
 
 	void iterate_animation(){
+		
+		if (newFrameReady) return;
+
 		if (allZero(_grow_automaton)){
 			initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
 			initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
@@ -270,7 +273,7 @@ public:
 			initialize_automaton(_fg_automaton, &hue_automatons[random(0, 8)], false);
 			initialize_seed(_fg_automaton, hue_seeds[0]);
 		}
-		if (newFrameReady) return;
+		
 		(*_fg_automaton).iterate();
 		(*_bg_automaton).iterate();
 		ratio++;
