@@ -1,18 +1,20 @@
 //-------NOTE: if you do clean, don't forget to fix core_pins.h for milis()
 
 
-#define POD_ID 5
+#define POD_ID 3
 
 
-#define AUTOMATON_INTERVAL 600
-#define FADE_INTERVAL 1000/20
+#define AUTOMATON_INTERVAL 4000
+#define FADE_INTERVAL 1000/30
+
 #define BEAM_UPDATE_INTERVAL 1000/40
 #define CIRCLE_UPDATE_INTERVAL 1000/60
 
 
-#define BEAM_FREQUENCY_INTERVAL 800
+#define BEAM_FREQUENCY_INTERVAL_1 900
+#define BEAM_FREQUENCY_INTERVAL_2 800
 #define CIRCLE_FREQUENCY_INTERVAL 2000
-#define RATIO_GROWTH 1  
+#define RATIO_GROWTH 1
 
 
 
@@ -61,7 +63,7 @@
 #define SHIFT_BRI 70  
 #define LOW_BRI 120
 #define HIGH_BRI 255
-int bri_level = 255;
+int bri_level = 205;
 
 #define CHANNEL_A 7             //Data pin for Screen_A
 #define CHANNEL_B 8             //Data pin for Screen_B
@@ -137,7 +139,8 @@ Screen screen_A; //= Screen(&fg_automaton_A, &bg_automaton_A, &grow_automaton_A,
 Screen screen_B; //= Screen(&fg_automaton_B, &bg_automaton_B, &grow_automaton_B, &sat_automaton_B, &matrix_B, &mask_B, &background_B);
 
 
-elapsedMillis sinceBeam;
+elapsedMillis sinceBeam1;
+elapsedMillis sinceBeam2;
 elapsedMillis sinceCircle;
 
 
@@ -176,7 +179,7 @@ void readMessages(){
 void readAnimationType(){
   String animReadBuffer = "";
   unsigned int readStartTime = rtcMillis();
-  isRegularAnimation = false;
+  isRegularAnimation = true;
   while(rtcMillis()<readStartTime+5000){
       while (Serial1.available()){
         char inChar = Serial1.read();
@@ -203,33 +206,54 @@ void updateRandomSeed(){
 }
 
 elapsedMillis sinceAutomatonInit;
+elapsedMillis sinceLastPulses;
 
 void regular_setup(){
   screen_A.init_screen();
   screen_B.init_screen();
   sinceAutomatonInit = 0;
+  sinceLastPulses = 0;
 }
 
+int numPulses = 0;
 
 void regular_animation(){
-  if(sinceBeam > BEAM_FREQUENCY_INTERVAL && sinceAutomatonInit > 2000){
-    sinceBeam = 0;
-    int rand1 = random(0, 2);
-    int rand2 = random(0, 2);
-    Color color1, color2;
-    if (rand1 == 0){
-      color1 = Color(random(screen_A.bottom_hue_threshold, screen_A.bottom_hue_threshold + screen_A.hue_difference), random(50, 75), random(55, 80), HSB_MODE);
+  if(sinceLastPulses > 14000  && sinceAutomatonInit > 2000 ){
+    if (numPulses == 20){
+      sinceLastPulses = 0;
+      numPulses = 0;
     } else {
-      color1 = Color(random(0,260), random(50, 75), random(55, 80), HSB_MODE);
+      numPulses++;
     }
 
-    if (rand2 == 0){
-      color2 = Color(random(screen_B.bottom_hue_threshold, screen_B.bottom_hue_threshold + screen_B.hue_difference), random(50, 75), random(55, 80), HSB_MODE);
-    } else {
-      color2 = Color(random(0,260), random(50, 75), random(55, 80), HSB_MODE);
+    if(sinceBeam1 > BEAM_FREQUENCY_INTERVAL_1){
+      sinceBeam1 = 0;
+      int rand1 = random(0, 2);
+      Color color1;
+      if (rand1 == 0){
+        color1 = Color(random(screen_B.bottom_hue_threshold, screen_B.bottom_hue_threshold + screen_B.hue_difference), random(50, 75), random(55, 80), HSB_MODE);
+      } else {
+        color1 = Color(random(0,260), random(50, 75), random(55, 80), HSB_MODE);
+      }
+      newBeam(&synapse_A, rand1, color1, random(3, 30),random(1000,6000));
+      
     }
-    newBeam(&synapse_A, rand1, color1, random(3, 30),random(1000,6000));
-    newBeam(&synapse_B, rand2, color2, random(3, 30),random(1000,6000));
+
+    if (sinceBeam2 > BEAM_FREQUENCY_INTERVAL_2 ){
+      sinceBeam2 = 0;
+      int rand2 = random(0, 2);
+      Color color2;
+      if (rand2 == 0){
+        color2 = Color(random(screen_A.bottom_hue_threshold, screen_A.bottom_hue_threshold + screen_A.hue_difference), random(50, 75), random(55, 80), HSB_MODE);
+      } else {
+        color2 = Color(random(0,260), random(50, 75), random(55, 80), HSB_MODE);
+      }
+      newBeam(&synapse_B, rand2, color2, random(3, 30),random(1000,6000));
+    }
+
+    
+
+
   }
 
   screen_A.iterate_animation();
@@ -287,8 +311,8 @@ void ceremony_animation(){
 
   if (sinceIntro > 0 && didIntro){
     Color c = Color(204, 57, 90, HSB_MODE);
-    if(sinceBeam > BEAM_FREQUENCY_INTERVAL-freq_offset){
-      sinceBeam = 0;
+    if(sinceBeam1 > BEAM_FREQUENCY_INTERVAL_1-freq_offset){
+      sinceBeam1 = 0;
       newBeam(&synapse_A, random(0, 2), c, random (2, 10), random(400+speed_offset, 900+speed_offset));
       newBeam(&synapse_B, random(0, 2), c, random (2, 10), random(400+speed_offset, 900+speed_offset));
       freq_offset = max(freq_offset - 50, 0); 
@@ -333,7 +357,8 @@ void setup() {
   } 
 
 
-  sinceBeam = 0;
+  sinceBeam1 = 0;
+  sinceBeam2 = 0;
   sinceBeamUpdate = 0;
   sinceCircleUpdate = 0;
 }

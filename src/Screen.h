@@ -41,14 +41,12 @@ class Screen {
 		{8, 1, 1, 0, 0, 3}
 	};
 
-	AutomatonValues bri_automatons[7] = {
+	AutomatonValues bri_automatons[5] = {
 		{7, 7, 2, 0, 0, 50},    
 		{7, 7, 3, 0, 0, 50},	
 		{5, 5, 2, 0, 0, 50},    
 		{5, 5, 3, 0, 0, 50},
-		{6, 6, 4, 0, 0, 50},
-		{6, 1, 6, 0, 0, 50},
-		{9, 1, 9, 0, 0, 50}			
+		{6, 6, 4, 0, 0, 50},		
 	};
 
 	Seed hue_seeds[1] = {
@@ -57,9 +55,9 @@ class Screen {
 
 	Seed bri_seeds[5] = {
 		{IMPLOSION, 1, false},
-		{SQUARE, random(2, 3), false},
-		{CIRCLE, random(2, 4), false},
-		{LINE, random(3, 10), false}
+		{SQUARE, random(3, 5), false},
+		{CIRCLE, random(3, 5), false},
+		{LINE, random(6, 10), false}
 	};
 	
 
@@ -94,7 +92,7 @@ public:
 		_bg_mask = bg_mask;
 		newFrameReady = false;
 		bottom_hue_threshold = random(0, 360);
-		hue_difference = random(60, 260);
+		hue_difference = random(80, 300);
 		sinceFadeUpdate = 0;
 	}
 
@@ -111,7 +109,7 @@ public:
 		
 		initialize_automaton(_fg_automaton, &hue_automatons[random(0, 8)], false);
 		initialize_automaton(_bg_automaton, &sat_automatons, true);
-		initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
+		initialize_automaton(_grow_automaton, &bri_automatons[random(0, 5)], true);
 		initialize_automaton(_sat_automaton, &sat_automatons, true);
 	}
 
@@ -131,6 +129,7 @@ public:
 
 	void initialize_automaton(Automaton * automaton, AutomatonValues * val, bool bg){
 		*automaton = Automaton((*val).target, (*val).penalty, (*val).reward, (*val).floorInit, (*val).minInit, (*val).maxInit, bg, *_mask, *_bg_mask);
+		
 	}
 
 	void initialize_seed(Automaton * automaton, Seed init_seed){
@@ -267,11 +266,15 @@ public:
 		if (allZero(_grow_automaton)){
 			initialize_automaton(_grow_automaton, &bri_automatons[random(0, 8)], true);
 			initialize_seed(_grow_automaton, bri_seeds[random(0, 5)]);
+			bottom_hue_threshold = random(0, 360);
+			hue_difference = random(80, 300);
 		}
 
 		if (allZero(_fg_automaton)){
 			initialize_automaton(_fg_automaton, &hue_automatons[random(0, 8)], false);
 			initialize_seed(_fg_automaton, hue_seeds[0]);
+			bottom_hue_threshold = random(0, 360);
+			hue_difference = random(80, 300);
 		}
 		
 		(*_fg_automaton).iterate();
